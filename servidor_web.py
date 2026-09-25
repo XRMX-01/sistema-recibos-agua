@@ -1,8 +1,10 @@
-from flask import Flask
+from flask import Flask, request, session, redirect, url_for
 import psycopg2
 import os
+import bcrypt
 
 app = Flask(__name__)
+app.secret_key = "clave_secreta_para_sesiones_123"  # Clave para manejar sesiones
 
 def conectar():
     return psycopg2.connect(
@@ -13,8 +15,61 @@ def conectar():
         sslmode="require"
     )
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        usuario = request.form['usuario']
+        contrasena = request.form['contrasena']
+        
+        conexion = conectar()
+        cursor = conexion.cursor()
+        cursor.execute("SELECT contrasena_hash FROM usuarios WHERE nombre_usuario = %s", (usuario,))
+        resultado = cursor.fetchone()
+        cursor.close()
+        conexion.close()
+        
+        if resultado:
+            hash_guardado = resultado[0].encode('utf-8')
+            if bcrypt.checkpw(contrasena.encode('utf-8'), hash_guardado):
+                session['usuario'] = usuario
+                return redirect(url_for('inicio'))
+        
+        error = "Usuario o contraseña incorrectos"
+    
+    return f"""
+    <html>
+    <head>
+        <title>Login - Sistema de Recibos</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{ font-family: Arial; background-color: #0066cc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }}
+            .login-box {{ background: white; padding: 30px; border-radius: 10px; width: 300px; text-align: center; }}
+            h1 {{ color: #0066cc; font-size: 24px; }}
+            input {{ width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }}
+            button {{ background-color: #0066cc; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; }}
+            .error {{ color: red; font-size: 14px; }}
+        </style>
+    </head>
+    <body>
+        <div class="login-box">
+            <h1>Sistema de Recibos</h1>
+            <form method="POST">
+                <input type="text" name="usuario" placeholder="Usuario" required>
+                <input type="password" name="contrasena" placeholder="Contraseña" required>
+                <button type="submit">Ingresar</button>
+            </form>
+            {f'<p class="error">{error}</p>' if error else ''}
+        </div>
+    </body>
+    </html>
+    """
+
 @app.route('/')
 def inicio():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("SELECT id_cliente, nombre_completo, direccion, telefono, numero_medidor FROM clientes ORDER BY id_cliente")
@@ -30,12 +85,14 @@ def inicio():
         <style>
             body { font-family: Arial; padding: 20px; background-color: #f4f4f4; }
             h1 { color: #0066cc; text-align: center; }
+            .logout { text-align: right; }
             table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
             th { background-color: #0066cc; color: white; }
         </style>
     </head>
     <body>
+        <div class="logout"><a href="/logout">Cerrar sesión</a></div>
         <h1>Lista de Clientes</h1>
         <table>
             <tr>
@@ -65,6 +122,13 @@ def inicio():
     """
     return html
 
+@app.route('/logout')
+def logout():
+    session.pop('usuario', None)
+    return redirect(url_for('login'))
+
 if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
