@@ -62,7 +62,7 @@ def login():
                 </label>
                 <button type="submit">Ingresar</button>
             </form>
-            <p class="error">{{ error if error else '' }}</p>
+            <p class="error">{{ error }}</p>
         </div>
         <script>
             function mostrarContrasena() {{
