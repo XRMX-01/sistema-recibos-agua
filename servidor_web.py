@@ -72,7 +72,7 @@ def login():
         }
     }
 </script>
-            {f'<p class="error">{error}</p>' if error else ''}
+            <p class="error">{{error if error else"}}</p>
         </div>
     </body>
     </html>
