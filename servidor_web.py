@@ -4,7 +4,7 @@ import os
 import bcrypt
 
 app = Flask(__name__)
-app.secret_key = "clave_secreta_para_sesiones_123"  # Clave para manejar sesiones
+app.secret_key = "clave_secreta_para_sesiones_123"
 
 def conectar():
     return psycopg2.connect(
@@ -54,26 +54,26 @@ def login():
     <body>
         <div class="login-box">
             <h1>Sistema de Recibos</h1>
-           <form method="POST">
-    <input type="text" name="usuario" placeholder="Usuario" required>
-    <input type="password" name="contrasena" id="contrasena" placeholder="Contraseña" required>
-    <label style="font-size: 12px; text-align: left; display: block; margin-bottom: 10px;">
-        <input type="checkbox" onclick="mostrarContrasena()"> Mostrar contraseña
-    </label>
-    <button type="submit">Ingresar</button>
-</form>
-<script>
-    function mostrarContrasena() {
-        var campo = document.getElementById("contrasena");
-        if (campo.type === "password") {
-            campo.type = "text";
-        } else {
-            campo.type = "password";
-        }
-    }
-</script>
-            <p class="error">{{ error }}</p>
+            <form method="POST">
+                <input type="text" name="usuario" placeholder="Usuario" required>
+                <input type="password" name="contrasena" id="contrasena" placeholder="Contraseña" required>
+                <label style="font-size: 12px; text-align: left; display: block; margin-bottom: 10px;">
+                    <input type="checkbox" onclick="mostrarContrasena()"> Mostrar contraseña
+                </label>
+                <button type="submit">Ingresar</button>
+            </form>
+            <p class="error">{{ error if error else '' }}</p>
         </div>
+        <script>
+            function mostrarContrasena() {{
+                var campo = document.getElementById("contrasena");
+                if (campo.type === "password") {{
+                    campo.type = "text";
+                }} else {{
+                    campo.type = "password";
+                }}
+            }}
+        </script>
     </body>
     </html>
     """
