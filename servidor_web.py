@@ -158,8 +158,8 @@ def inicio():
                 <td>{c[4] or ''}</td>
                 <td>{c[5] or ''}</td>
                 <td>{c[6] or ''}</td>
-                <td>{c[7] or ''}</td>
-                <td>{c[8] or ''}</td>
+                <td>{str(c[7])[:10] if c[7] else ''}</td>
+                <td>{str(c[8])[:10] if c[8] else ''}</td>
                 <td>{c[9] or ''}</td>
                 <td>{c[10] or ''}</td>
                 <td>{c[11] or ''}</td>
@@ -294,8 +294,8 @@ def editar(id_cliente):
     cursor.close()
     conexion.close()
     
-    fecha_pago = c[7].strftime('%Y-%m-%d') if c[7] else ''
-    fecha_corte = c[8].strftime('%Y-%m-%d') if c[8] else ''
+    fecha_pago = str(c[7])[:10] if c[7] else ''
+    fecha_corte = str(c[8])[:10] if c[8] else ''
     
     nombre = c[1] if c[1] else ''
     apellidos = c[2] if c[2] else ''
