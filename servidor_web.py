@@ -152,17 +152,17 @@ def inicio():
         html += f"""
             <tr class="{color}">
                 <td>{c[0]}</td>
-                <td>{c[1]}</td>
-                <td>{c[2]}</td>
-                <td>{c[3]}</td>
-                <td>{c[4]}</td>
-                <td>{c[5]}</td>
-                <td>{c[6]}</td>
-                <td>{c[7]}</td>
-                <td>{c[8]}</td>
-                <td>{c[9]}</td>
-                <td>{c[10]}</td>
-                <td>{c[11]}</td>
+                <td>{c[1] or ''}</td>
+                <td>{c[2] or ''}</td>
+                <td>{c[3] or ''}</td>
+                <td>{c[4] or ''}</td>
+                <td>{c[5] or ''}</td>
+                <td>{c[6] or ''}</td>
+                <td>{c[7] or ''}</td>
+                <td>{c[8] or ''}</td>
+                <td>{c[9] or ''}</td>
+                <td>{c[10] or ''}</td>
+                <td>{c[11] or ''}</td>
                 <td>
                     <a href="/editar/{c[0]}" class="btn-editar">Editar</a>
                     <a href="/eliminar/{c[0]}" class="btn-eliminar" onclick="return confirm('¿Eliminar a {c[1]}?')">Eliminar</a>
@@ -297,6 +297,15 @@ def editar(id_cliente):
     fecha_pago = c[7].strftime('%Y-%m-%d') if c[7] else ''
     fecha_corte = c[8].strftime('%Y-%m-%d') if c[8] else ''
     
+    nombre = c[1] if c[1] else ''
+    apellidos = c[2] if c[2] else ''
+    dni = c[3] if c[3] else ''
+    calle = c[4] if c[4] else ''
+    mz = c[5] if c[5] else ''
+    lote = c[6] if c[6] else ''
+    monto = c[9] if c[9] else ''
+    mes = c[10] if c[10] else ''
+    
     return f"""
     <html>
     <head>
@@ -315,25 +324,25 @@ def editar(id_cliente):
         <h1>Editar Cliente</h1>
         <form method="POST">
             <label>Nombres:</label>
-            <input type="text" name="nombre_completo" value="{c[1] or ''}" required>
+            <input type="text" name="nombre_completo" value="{nombre}" required>
             <label>Apellidos:</label>
-            <input type="text" name="apellidos" value="{c[2] or ''}">
+            <input type="text" name="apellidos" value="{apellidos}">
             <label>DNI:</label>
-            <input type="text" name="dni" value="{c[3] or ''}" maxlength="8">
+            <input type="text" name="dni" value="{dni}" maxlength="8">
             <label>Calle:</label>
-            <input type="text" name="calle" value="{c[4] or ''}">
+            <input type="text" name="calle" value="{calle}">
             <label>Mz:</label>
-            <input type="text" name="mz" value="{c[5] or ''}">
+            <input type="text" name="mz" value="{mz}">
             <label>Lote:</label>
-            <input type="text" name="lote" value="{c[6] or ''}">
+            <input type="text" name="lote" value="{lote}">
             <label>Fecha de Pago:</label>
             <input type="date" name="fecha_pago" value="{fecha_pago}">
             <label>Fecha de Corte:</label>
             <input type="date" name="fecha_corte" value="{fecha_corte}">
             <label>Monto a Pagar:</label>
-            <input type="number" step="0.01" name="monto_pagar" value="{c[9] or ''}">
+            <input type="number" step="0.01" name="monto_pagar" value="{monto}">
             <label>Mes:</label>
-            <input type="text" name="mes" value="{c[10] or ''}">
+            <input type="text" name="mes" value="{mes}">
             <label>Estado:</label>
             <select name="estado">
                 <option value="Puntual" {'selected' if c[11] == 'Puntual' else ''}>Puntual</option>
