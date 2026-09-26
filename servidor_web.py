@@ -43,23 +43,27 @@ def login():
         <title>Login - Sistema de Recibos</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body {{ font-family: Arial; background-color: #0066cc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }}
-            .login-box {{ background: white; padding: 30px; border-radius: 10px; width: 300px; text-align: center; }}
-            h1 {{ color: #0066cc; font-size: 24px; }}
-            input {{ width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }}
-            button {{ background-color: #0066cc; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; }}
-            .error {{ color: red; font-size: 14px; }}
+            * {{ box-sizing: border-box; }}
+            body {{ font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #0066cc 0%, #003d7a 100%); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }}
+            .login-box {{ background: white; padding: 40px 30px; border-radius: 15px; width: 340px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; }}
+            .logo {{ font-size: 40px; margin-bottom: 10px; }}
+            h1 {{ color: #0066cc; font-size: 22px; margin-bottom: 25px; }}
+            input {{ width: 100%; padding: 12px 15px; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: border 0.3s; }}
+            input:focus {{ border-color: #0066cc; outline: none; }}
+            button {{ background: linear-gradient(135deg, #0066cc, #004a99); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; transition: transform 0.2s; }}
+            button:hover {{ transform: scale(1.02); }}
+            .error {{ color: #dc3545; font-size: 13px; margin-top: 10px; }}
+            label {{ font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }}
         </style>
     </head>
     <body>
         <div class="login-box">
+            <div class="logo">💧</div>
             <h1>Sistema de Recibos</h1>
             <form method="POST">
                 <input type="text" name="usuario" placeholder="Usuario" required>
                 <input type="password" name="contrasena" id="contrasena" placeholder="Contraseña" required>
-                <label style="font-size: 12px; text-align: left; display: block; margin-bottom: 10px;">
-                    <input type="checkbox" onclick="mostrarContrasena()"> Mostrar contraseña
-                </label>
+                <label><input type="checkbox" onclick="mostrarContrasena()"> Mostrar contraseña</label>
                 <button type="submit">Ingresar</button>
             </form>
             <p class="error">{error if error else ''}</p>
@@ -100,25 +104,33 @@ def inicio():
         <title>Sistema de Recibos de Agua</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body { font-family: Arial; padding: 20px; background-color: #f4f4f4; }
-            h1 { color: #0066cc; text-align: center; }
-            .logout { text-align: right; margin-bottom: 10px; }
-            table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; font-size: 13px; }
-            th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
-            th { background-color: #0066cc; color: white; }
-            .verde { background-color: #d4edda; }
-            .amarillo { background-color: #fff3cd; }
-            .rojo { background-color: #f8d7da; }
-            .azul { background-color: #d1ecf1; }
-            .btn-agregar { background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 14px; display: inline-block; }
-            .btn-editar { background-color: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 13px; display: inline-block; margin: 2px; }
-            .btn-eliminar { background-color: #dc3545; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 13px; display: inline-block; margin: 2px; }
+            * { box-sizing: border-box; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }
+            .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+            .header h1 { color: #0066cc; margin: 0; font-size: 22px; }
+            .header a { color: #dc3545; text-decoration: none; font-weight: bold; }
+            .btn-agregar { background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; box-shadow: 0 2px 5px rgba(40,167,69,0.3); }
+            .tabla-container { overflow-x: auto; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 10px; }
+            table { width: 100%; border-collapse: collapse; font-size: 13px; }
+            th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+            th { background-color: #0066cc; color: white; font-weight: bold; }
+            tr:hover { background-color: #f8f9fa; }
+            .verde { background-color: #d4edda !important; }
+            .amarillo { background-color: #fff3cd !important; }
+            .rojo { background-color: #f8d7da !important; }
+            .azul { background-color: #d1ecf1 !important; }
+            .btn-editar { background-color: #007bff; color: white; padding: 6px 12px; text-decoration: none; border-radius: 5px; font-size: 12px; display: inline-block; margin: 2px; }
+            .btn-eliminar { background-color: #dc3545; color: white; padding: 6px 12px; text-decoration: none; border-radius: 5px; font-size: 12px; display: inline-block; margin: 2px; }
         </style>
     </head>
     <body>
-        <div class="logout"><a href="/logout">Cerrar sesión</a></div>
-        <h1>Lista de Clientes</h1>
+        <div class="header">
+            <h1>💧 Lista de Clientes</h1>
+            <a href="/logout">Cerrar sesión</a>
+        </div>
         <a href="/agregar" class="btn-agregar">+ Agregar Cliente</a>
+        <br><br>
+        <div class="tabla-container">
         <table>
             <tr>
                 <th>ID</th>
@@ -164,14 +176,15 @@ def inicio():
                 <td>{c[10] or ''}</td>
                 <td>{c[11] or ''}</td>
                 <td>
-                    <a href="/editar/{c[0]}" class="btn-editar">Editar</a>
-                    <a href="/eliminar/{c[0]}" class="btn-eliminar" onclick="return confirm('¿Eliminar a {c[1]}?')">Eliminar</a>
+                    <a href="/editar/{c[0]}" class="btn-editar">✏️ Editar</a>
+                    <a href="/eliminar/{c[0]}" class="btn-eliminar" onclick="return confirm('¿Eliminar a {c[1]}?')">🗑️ Eliminar</a>
                 </td>
             </tr>
         """
 
     html += """
         </table>
+        </div>
     </body>
     </html>
     """
@@ -212,46 +225,52 @@ def agregar():
         <title>Agregar Cliente</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body { font-family: Arial; padding: 20px; background-color: #f4f4f4; }
-            h1 { color: #0066cc; }
-            input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-            button { background-color: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
-            .volver { display: inline-block; margin-bottom: 15px; color: #0066cc; text-decoration: none; }
+            * { box-sizing: border-box; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }
+            .contenedor { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            h1 { color: #0066cc; margin-top: 0; }
+            label { font-size: 13px; color: #555; font-weight: bold; }
+            input, select { width: 100%; padding: 10px; margin: 5px 0 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+            input:focus, select:focus { border-color: #0066cc; outline: none; }
+            button { background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+            .volver { display: inline-block; margin-bottom: 15px; color: #0066cc; text-decoration: none; font-weight: bold; }
         </style>
     </head>
     <body>
-        <a href="/" class="volver">← Volver a la lista</a>
-        <h1>Agregar Cliente</h1>
-        <form method="POST">
-            <label>Nombres:</label>
-            <input type="text" name="nombre_completo" required>
-            <label>Apellidos:</label>
-            <input type="text" name="apellidos">
-            <label>DNI:</label>
-            <input type="text" name="dni" maxlength="8">
-            <label>Calle:</label>
-            <input type="text" name="calle">
-            <label>Mz:</label>
-            <input type="text" name="mz">
-            <label>Lote:</label>
-            <input type="text" name="lote">
-            <label>Fecha de Pago:</label>
-            <input type="date" name="fecha_pago">
-            <label>Fecha de Corte:</label>
-            <input type="date" name="fecha_corte">
-            <label>Monto a Pagar:</label>
-            <input type="number" step="0.01" name="monto_pagar">
-            <label>Mes:</label>
-            <input type="text" name="mes">
-            <label>Estado:</label>
-            <select name="estado">
-                <option value="Puntual">Puntual</option>
-                <option value="Pendiente">Pendiente</option>
-                <option value="Deudor">Deudor</option>
-                <option value="Justificado">Justificado</option>
-            </select>
-            <button type="submit">Guardar Cliente</button>
-        </form>
+        <div class="contenedor">
+            <a href="/" class="volver">← Volver a la lista</a>
+            <h1>➕ Agregar Cliente</h1>
+            <form method="POST">
+                <label>Nombres:</label>
+                <input type="text" name="nombre_completo" required>
+                <label>Apellidos:</label>
+                <input type="text" name="apellidos">
+                <label>DNI:</label>
+                <input type="text" name="dni" maxlength="8">
+                <label>Calle:</label>
+                <input type="text" name="calle">
+                <label>Mz:</label>
+                <input type="text" name="mz">
+                <label>Lote:</label>
+                <input type="text" name="lote">
+                <label>Fecha de Pago:</label>
+                <input type="date" name="fecha_pago">
+                <label>Fecha de Corte:</label>
+                <input type="date" name="fecha_corte">
+                <label>Monto a Pagar:</label>
+                <input type="number" step="0.01" name="monto_pagar">
+                <label>Mes:</label>
+                <input type="text" name="mes">
+                <label>Estado:</label>
+                <select name="estado">
+                    <option value="Puntual">Puntual</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Deudor">Deudor</option>
+                    <option value="Justificado">Justificado</option>
+                </select>
+                <button type="submit">💾 Guardar Cliente</button>
+            </form>
+        </div>
     </body>
     </html>
     """
@@ -312,46 +331,52 @@ def editar(id_cliente):
         <title>Editar Cliente</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body {{ font-family: Arial; padding: 20px; background-color: #f4f4f4; }}
-            h1 {{ color: #0066cc; }}
-            input, select {{ width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }}
-            button {{ background-color: #007bff; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }}
-            .volver {{ display: inline-block; margin-bottom: 15px; color: #0066cc; text-decoration: none; }}
+            * {{ box-sizing: border-box; }}
+            body {{ font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }}
+            .contenedor {{ max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+            h1 {{ color: #0066cc; margin-top: 0; }}
+            label {{ font-size: 13px; color: #555; font-weight: bold; }}
+            input, select {{ width: 100%; padding: 10px; margin: 5px 0 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; font-size: 14px; }}
+            input:focus, select:focus {{ border-color: #0066cc; outline: none; }}
+            button {{ background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }}
+            .volver {{ display: inline-block; margin-bottom: 15px; color: #0066cc; text-decoration: none; font-weight: bold; }}
         </style>
     </head>
     <body>
-        <a href="/" class="volver">← Volver a la lista</a>
-        <h1>Editar Cliente</h1>
-        <form method="POST">
-            <label>Nombres:</label>
-            <input type="text" name="nombre_completo" value="{nombre}" required>
-            <label>Apellidos:</label>
-            <input type="text" name="apellidos" value="{apellidos}">
-            <label>DNI:</label>
-            <input type="text" name="dni" value="{dni}" maxlength="8">
-            <label>Calle:</label>
-            <input type="text" name="calle" value="{calle}">
-            <label>Mz:</label>
-            <input type="text" name="mz" value="{mz}">
-            <label>Lote:</label>
-            <input type="text" name="lote" value="{lote}">
-            <label>Fecha de Pago:</label>
-            <input type="date" name="fecha_pago" value="{fecha_pago}">
-            <label>Fecha de Corte:</label>
-            <input type="date" name="fecha_corte" value="{fecha_corte}">
-            <label>Monto a Pagar:</label>
-            <input type="number" step="0.01" name="monto_pagar" value="{monto}">
-            <label>Mes:</label>
-            <input type="text" name="mes" value="{mes}">
-            <label>Estado:</label>
-            <select name="estado">
-                <option value="Puntual" {'selected' if c[11] == 'Puntual' else ''}>Puntual</option>
-                <option value="Pendiente" {'selected' if c[11] == 'Pendiente' else ''}>Pendiente</option>
-                <option value="Deudor" {'selected' if c[11] == 'Deudor' else ''}>Deudor</option>
-                <option value="Justificado" {'selected' if c[11] == 'Justificado' else ''}>Justificado</option>
-            </select>
-            <button type="submit">Guardar Cambios</button>
-        </form>
+        <div class="contenedor">
+            <a href="/" class="volver">← Volver a la lista</a>
+            <h1>✏️ Editar Cliente</h1>
+            <form method="POST">
+                <label>Nombres:</label>
+                <input type="text" name="nombre_completo" value="{nombre}" required>
+                <label>Apellidos:</label>
+                <input type="text" name="apellidos" value="{apellidos}">
+                <label>DNI:</label>
+                <input type="text" name="dni" value="{dni}" maxlength="8">
+                <label>Calle:</label>
+                <input type="text" name="calle" value="{calle}">
+                <label>Mz:</label>
+                <input type="text" name="mz" value="{mz}">
+                <label>Lote:</label>
+                <input type="text" name="lote" value="{lote}">
+                <label>Fecha de Pago:</label>
+                <input type="date" name="fecha_pago" value="{fecha_pago}">
+                <label>Fecha de Corte:</label>
+                <input type="date" name="fecha_corte" value="{fecha_corte}">
+                <label>Monto a Pagar:</label>
+                <input type="number" step="0.01" name="monto_pagar" value="{monto}">
+                <label>Mes:</label>
+                <input type="text" name="mes" value="{mes}">
+                <label>Estado:</label>
+                <select name="estado">
+                    <option value="Puntual" {'selected' if c[11] == 'Puntual' else ''}>Puntual</option>
+                    <option value="Pendiente" {'selected' if c[11] == 'Pendiente' else ''}>Pendiente</option>
+                    <option value="Deudor" {'selected' if c[11] == 'Deudor' else ''}>Deudor</option>
+                    <option value="Justificado" {'selected' if c[11] == 'Justificado' else ''}>Justificado</option>
+                </select>
+                <button type="submit">💾 Guardar Cambios</button>
+            </form>
+        </div>
     </body>
     </html>
     """
