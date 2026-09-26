@@ -110,9 +110,9 @@ def inicio():
             .amarillo { background-color: #fff3cd; }
             .rojo { background-color: #f8d7da; }
             .azul { background-color: #d1ecf1; }
-            .btn-agregar { background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
-            .btn-editar { background-color: #007bff; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; }
-            .btn-eliminar { background-color: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; }
+            .btn-agregar { background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 14px; display: inline-block; }
+            .btn-editar { background-color: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 13px; display: inline-block; margin: 2px; }
+            .btn-eliminar { background-color: #dc3545; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 13px; display: inline-block; margin: 2px; }
         </style>
     </head>
     <body>
