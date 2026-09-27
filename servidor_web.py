@@ -2,6 +2,7 @@ from flask import Flask, request, session, redirect, url_for
 import psycopg2
 import os
 import bcrypt
+from datetime import date
 
 app = Flask(__name__)
 app.secret_key = "clave_secreta_para_sesiones_123"
@@ -14,6 +15,13 @@ def conectar():
         password=os.environ.get("DB_PASSWORD"),
         sslmode="require"
     )
+
+def calcular_edad(fecha_nac):
+    if not fecha_nac:
+        return ""
+    hoy = date.today()
+    edad = hoy.year - fecha_nac.year - ((hoy.month, hoy.day) < (fecha_nac.month, fecha_nac.day))
+    return edad
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -90,8 +98,8 @@ def inicio():
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
-        SELECT id_cliente, nombre_completo, apellidos, dni, calle, mz, lote, 
-               fecha_pago, fecha_corte, monto_pagar, mes, estado 
+        SELECT id_cliente, nombre_completo, apellidos, dni, direccion, correo, celular, calle, mz, lote, 
+               fecha_pago, fecha_corte, monto_pagar, mes, estado, fecha_nacimiento 
         FROM clientes ORDER BY id_cliente
     """)
     clientes = cursor.fetchall()
@@ -137,6 +145,10 @@ def inicio():
                 <th>Nombres</th>
                 <th>Apellidos</th>
                 <th>DNI</th>
+                <th>Edad</th>
+                <th>Dirección</th>
+                <th>Correo</th>
+                <th>Celular</th>
                 <th>Calle</th>
                 <th>Mz</th>
                 <th>Lote</th>
@@ -150,7 +162,7 @@ def inicio():
     """
 
     for c in clientes:
-        estado = c[11] if c[11] else "Puntual"
+        estado = c[14] if c[14] else "Puntual"
         color = ""
         if estado == "Puntual":
             color = "verde"
@@ -161,20 +173,26 @@ def inicio():
         elif estado == "Justificado":
             color = "azul"
         
+        edad = calcular_edad(c[15])
+        
         html += f"""
             <tr class="{color}">
                 <td>{c[0]}</td>
                 <td>{c[1] or ''}</td>
                 <td>{c[2] or ''}</td>
                 <td>{c[3] or ''}</td>
+                <td>{edad}</td>
                 <td>{c[4] or ''}</td>
                 <td>{c[5] or ''}</td>
                 <td>{c[6] or ''}</td>
-                <td>{str(c[7])[:10] if c[7] else ''}</td>
-                <td>{str(c[8])[:10] if c[8] else ''}</td>
+                <td>{c[7] or ''}</td>
+                <td>{c[8] or ''}</td>
                 <td>{c[9] or ''}</td>
-                <td>{c[10] or ''}</td>
-                <td>{c[11] or ''}</td>
+                <td>{str(c[10])[:10] if c[10] else ''}</td>
+                <td>{str(c[11])[:10] if c[11] else ''}</td>
+                <td>{c[12] or ''}</td>
+                <td>{c[13] or ''}</td>
+                <td>{c[14] or ''}</td>
                 <td>
                     <a href="/editar/{c[0]}" class="btn-editar">✏️ Editar</a>
                     <a href="/eliminar/{c[0]}" class="btn-eliminar" onclick="return confirm('¿Eliminar a {c[1]}?')">🗑️ Eliminar</a>
@@ -199,12 +217,15 @@ def agregar():
         conexion = conectar()
         cursor = conexion.cursor()
         cursor.execute("""
-            INSERT INTO clientes (nombre_completo, apellidos, dni, calle, mz, lote, fecha_pago, fecha_corte, monto_pagar, mes, estado)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO clientes (nombre_completo, apellidos, dni, direccion, correo, celular, calle, mz, lote, fecha_pago, fecha_corte, monto_pagar, mes, estado, fecha_nacimiento)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             request.form['nombre_completo'],
             request.form['apellidos'],
             request.form['dni'],
+            request.form['direccion'],
+            request.form['correo'],
+            request.form['celular'],
             request.form['calle'],
             request.form['mz'],
             request.form['lote'],
@@ -212,7 +233,8 @@ def agregar():
             request.form['fecha_corte'] or None,
             request.form['monto_pagar'] or None,
             request.form['mes'],
-            request.form['estado']
+            request.form['estado'],
+            request.form['fecha_nacimiento'] or None
         ))
         conexion.commit()
         cursor.close()
@@ -247,6 +269,14 @@ def agregar():
                 <input type="text" name="apellidos">
                 <label>DNI:</label>
                 <input type="text" name="dni" maxlength="8">
+                <label>Fecha de Nacimiento:</label>
+                <input type="date" name="fecha_nacimiento">
+                <label>Dirección:</label>
+                <input type="text" name="direccion">
+                <label>Correo:</label>
+                <input type="email" name="correo">
+                <label>Celular:</label>
+                <input type="text" name="celular">
                 <label>Calle:</label>
                 <input type="text" name="calle">
                 <label>Mz:</label>
@@ -284,13 +314,16 @@ def editar(id_cliente):
         conexion = conectar()
         cursor = conexion.cursor()
         cursor.execute("""
-            UPDATE clientes SET nombre_completo=%s, apellidos=%s, dni=%s, calle=%s, mz=%s, lote=%s, 
-            fecha_pago=%s, fecha_corte=%s, monto_pagar=%s, mes=%s, estado=%s
+            UPDATE clientes SET nombre_completo=%s, apellidos=%s, dni=%s, direccion=%s, correo=%s, celular=%s, 
+            calle=%s, mz=%s, lote=%s, fecha_pago=%s, fecha_corte=%s, monto_pagar=%s, mes=%s, estado=%s, fecha_nacimiento=%s
             WHERE id_cliente=%s
         """, (
             request.form['nombre_completo'],
             request.form['apellidos'],
             request.form['dni'],
+            request.form['direccion'],
+            request.form['correo'],
+            request.form['celular'],
             request.form['calle'],
             request.form['mz'],
             request.form['lote'],
@@ -299,6 +332,7 @@ def editar(id_cliente):
             request.form['monto_pagar'] or None,
             request.form['mes'],
             request.form['estado'],
+            request.form['fecha_nacimiento'] or None,
             id_cliente
         ))
         conexion.commit()
@@ -308,22 +342,26 @@ def editar(id_cliente):
     
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute("SELECT id_cliente, nombre_completo, apellidos, dni, calle, mz, lote, fecha_pago, fecha_corte, monto_pagar, mes, estado FROM clientes WHERE id_cliente = %s", (id_cliente,))
+    cursor.execute("SELECT id_cliente, nombre_completo, apellidos, dni, direccion, correo, celular, calle, mz, lote, fecha_pago, fecha_corte, monto_pagar, mes, estado, fecha_nacimiento FROM clientes WHERE id_cliente = %s", (id_cliente,))
     c = cursor.fetchone()
     cursor.close()
     conexion.close()
     
-    fecha_pago = str(c[7])[:10] if c[7] else ''
-    fecha_corte = str(c[8])[:10] if c[8] else ''
+    fecha_pago = str(c[10])[:10] if c[10] else ''
+    fecha_corte = str(c[11])[:10] if c[11] else ''
+    fecha_nac = str(c[15])[:10] if c[15] else ''
     
     nombre = c[1] if c[1] else ''
     apellidos = c[2] if c[2] else ''
     dni = c[3] if c[3] else ''
-    calle = c[4] if c[4] else ''
-    mz = c[5] if c[5] else ''
-    lote = c[6] if c[6] else ''
-    monto = c[9] if c[9] else ''
-    mes = c[10] if c[10] else ''
+    direccion = c[4] if c[4] else ''
+    correo = c[5] if c[5] else ''
+    celular = c[6] if c[6] else ''
+    calle = c[7] if c[7] else ''
+    mz = c[8] if c[8] else ''
+    lote = c[9] if c[9] else ''
+    monto = c[12] if c[12] else ''
+    mes = c[13] if c[13] else ''
     
     return f"""
     <html>
@@ -353,6 +391,14 @@ def editar(id_cliente):
                 <input type="text" name="apellidos" value="{apellidos}">
                 <label>DNI:</label>
                 <input type="text" name="dni" value="{dni}" maxlength="8">
+                <label>Fecha de Nacimiento:</label>
+                <input type="date" name="fecha_nacimiento" value="{fecha_nac}">
+                <label>Dirección:</label>
+                <input type="text" name="direccion" value="{direccion}">
+                <label>Correo:</label>
+                <input type="email" name="correo" value="{correo}">
+                <label>Celular:</label>
+                <input type="text" name="celular" value="{celular}">
                 <label>Calle:</label>
                 <input type="text" name="calle" value="{calle}">
                 <label>Mz:</label>
@@ -369,10 +415,10 @@ def editar(id_cliente):
                 <input type="text" name="mes" value="{mes}">
                 <label>Estado:</label>
                 <select name="estado">
-                    <option value="Puntual" {'selected' if c[11] == 'Puntual' else ''}>Puntual</option>
-                    <option value="Pendiente" {'selected' if c[11] == 'Pendiente' else ''}>Pendiente</option>
-                    <option value="Deudor" {'selected' if c[11] == 'Deudor' else ''}>Deudor</option>
-                    <option value="Justificado" {'selected' if c[11] == 'Justificado' else ''}>Justificado</option>
+                    <option value="Puntual" {'selected' if c[14] == 'Puntual' else ''}>Puntual</option>
+                    <option value="Pendiente" {'selected' if c[14] == 'Pendiente' else ''}>Pendiente</option>
+                    <option value="Deudor" {'selected' if c[14] == 'Deudor' else ''}>Deudor</option>
+                    <option value="Justificado" {'selected' if c[14] == 'Justificado' else ''}>Justificado</option>
                 </select>
                 <button type="submit">💾 Guardar Cambios</button>
             </form>
