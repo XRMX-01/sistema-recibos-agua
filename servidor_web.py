@@ -32,7 +32,7 @@ def login():
         
         conexion = conectar()
         cursor = conexion.cursor()
-        cursor.execute("SELECT contrasena_hash FROM usuarios WHERE nombre_usuario = %s", (usuario,))
+        cursor.execute("SELECT contrasena_hash, rol FROM usuarios WHERE nombre_usuario = %s", (usuario,))
         resultado = cursor.fetchone()
         cursor.close()
         conexion.close()
@@ -41,6 +41,7 @@ def login():
             hash_guardado = resultado[0].encode('utf-8')
             if bcrypt.checkpw(contrasena.encode('utf-8'), hash_guardado):
                 session['usuario'] = usuario
+                session['rol'] = resultado[1] if resultado[1] else 'cliente'
                 return redirect(url_for('inicio'))
         
         error = "Usuario o contraseña incorrectos"
@@ -95,6 +96,16 @@ def inicio():
     if 'usuario' not in session:
         return redirect(url_for('login'))
     
+    if session.get('rol') == 'admin':
+        return redirect(url_for('admin'))
+    else:
+        return redirect(url_for('cliente'))
+
+@app.route('/admin')
+def admin():
+    if 'usuario' not in session or session.get('rol') != 'admin':
+        return redirect(url_for('login'))
+    
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
@@ -133,7 +144,7 @@ def inicio():
     </head>
     <body>
         <div class="header">
-            <h1>💧 Lista de Clientes</h1>
+            <h1>💧 Lista de Clientes (Admin)</h1>
             <a href="/logout">Cerrar sesión</a>
         </div>
         <a href="/agregar" class="btn-agregar">+ Agregar Cliente</a>
@@ -208,9 +219,83 @@ def inicio():
     """
     return html
 
+@app.route('/cliente')
+def cliente():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        SELECT c.nombre_completo, c.apellidos, c.dni, c.direccion, c.correo, c.celular, c.calle, c.mz, c.lote, 
+               c.fecha_pago, c.fecha_corte, c.monto_pagar, c.mes, c.estado, c.fecha_nacimiento 
+        FROM clientes c
+        INNER JOIN usuarios u ON c.id_cliente = u.id_cliente
+        WHERE u.nombre_usuario = %s
+    """, (session['usuario'],))
+    c = cursor.fetchone()
+    cursor.close()
+    conexion.close()
+    
+    if not c:
+        return "No se encontraron datos para este usuario. Contacte al administrador."
+    
+    estado = c[13] if c[13] else "Puntual"
+    color = ""
+    if estado == "Puntual":
+        color = "#d4edda"
+    elif estado == "Pendiente":
+        color = "#fff3cd"
+    elif estado == "Deudor" or estado == "Corte":
+        color = "#f8d7da"
+    elif estado == "Justificado":
+        color = "#d1ecf1"
+    
+    edad = calcular_edad(c[14])
+    
+    return f"""
+    <html>
+    <head>
+        <title>Mi Recibo</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            * {{ box-sizing: border-box; }}
+            body {{ font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }}
+            .contenedor {{ max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+            h1 {{ color: #0066cc; text-align: center; }}
+            .estado {{ padding: 15px; border-radius: 10px; text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0; background-color: {color}; }}
+            .dato {{ margin: 10px 0; font-size: 15px; }}
+            .dato strong {{ color: #0066cc; }}
+            .logout {{ text-align: right; margin-bottom: 15px; }}
+            .logout a {{ color: #dc3545; text-decoration: none; font-weight: bold; }}
+        </style>
+    </head>
+    <body>
+        <div class="contenedor">
+            <div class="logout"><a href="/logout">Cerrar sesión</a></div>
+            <h1>💧 Mi Recibo</h1>
+            <div class="estado">Estado: {estado}</div>
+            <div class="dato"><strong>Nombre:</strong> {c[0]} {c[1] or ''}</div>
+            <div class="dato"><strong>DNI:</strong> {c[2] or ''}</div>
+            <div class="dato"><strong>Edad:</strong> {edad}</div>
+            <div class="dato"><strong>Dirección:</strong> {c[3] or ''}</div>
+            <div class="dato"><strong>Calle:</strong> {c[6] or ''}</div>
+            <div class="dato"><strong>Mz:</strong> {c[7] or ''}</div>
+            <div class="dato"><strong>Lote:</strong> {c[8] or ''}</div>
+            <div class="dato"><strong>Celular:</strong> {c[5] or ''}</div>
+            <div class="dato"><strong>Correo:</strong> {c[4] or ''}</div>
+            <div class="dato"><strong>Fecha de Pago:</strong> {str(c[9])[:10] if c[9] else 'Aún no ha pagado'}</div>
+            <div class="dato"><strong>Fecha de Corte:</strong> {str(c[10])[:10] if c[10] else ''}</div>
+            <div class="dato"><strong>Monto a Pagar:</strong> S/ {c[11] or ''}</div>
+            <div class="dato"><strong>Mes:</strong> {c[12] or ''}</div>
+        </div>
+    </body>
+    </html>
+    """
+
 @app.route('/agregar', methods=['GET', 'POST'])
 def agregar():
-    if 'usuario' not in session:
+    if 'usuario' not in session or session.get('rol') != 'admin':
         return redirect(url_for('login'))
     
     if request.method == 'POST':
@@ -239,7 +324,7 @@ def agregar():
         conexion.commit()
         cursor.close()
         conexion.close()
-        return redirect(url_for('inicio'))
+        return redirect(url_for('admin'))
     
     return """
     <html>
@@ -260,7 +345,7 @@ def agregar():
     </head>
     <body>
         <div class="contenedor">
-            <a href="/" class="volver">← Volver a la lista</a>
+            <a href="/admin" class="volver">← Volver a la lista</a>
             <h1>➕ Agregar Cliente</h1>
             <form method="POST">
                 <label>Nombres:</label>
@@ -307,7 +392,7 @@ def agregar():
 
 @app.route('/editar/<int:id_cliente>', methods=['GET', 'POST'])
 def editar(id_cliente):
-    if 'usuario' not in session:
+    if 'usuario' not in session or session.get('rol') != 'admin':
         return redirect(url_for('login'))
     
     if request.method == 'POST':
@@ -338,7 +423,7 @@ def editar(id_cliente):
         conexion.commit()
         cursor.close()
         conexion.close()
-        return redirect(url_for('inicio'))
+        return redirect(url_for('admin'))
     
     conexion = conectar()
     cursor = conexion.cursor()
@@ -382,7 +467,7 @@ def editar(id_cliente):
     </head>
     <body>
         <div class="contenedor">
-            <a href="/" class="volver">← Volver a la lista</a>
+            <a href="/admin" class="volver">← Volver a la lista</a>
             <h1>✏️ Editar Cliente</h1>
             <form method="POST">
                 <label>Nombres:</label>
@@ -429,7 +514,7 @@ def editar(id_cliente):
 
 @app.route('/eliminar/<int:id_cliente>')
 def eliminar(id_cliente):
-    if 'usuario' not in session:
+    if 'usuario' not in session or session.get('rol') != 'admin':
         return redirect(url_for('login'))
     
     conexion = conectar()
@@ -438,11 +523,12 @@ def eliminar(id_cliente):
     conexion.commit()
     cursor.close()
     conexion.close()
-    return redirect(url_for('inicio'))
+    return redirect(url_for('admin'))
 
 @app.route('/logout')
 def logout():
     session.pop('usuario', None)
+    session.pop('rol', None)
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
