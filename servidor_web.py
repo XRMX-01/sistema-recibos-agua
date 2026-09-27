@@ -308,7 +308,7 @@ def editar(id_cliente):
     
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute("SELECT * FROM clientes WHERE id_cliente = %s", (id_cliente,))
+    cursor.execute("SELECT id_cliente, nombre_completo, apellidos, dni, calle, mz, lote, fecha_pago, fecha_corte, monto_pagar, mes, estado FROM clientes WHERE id_cliente = %s", (id_cliente,))
     c = cursor.fetchone()
     cursor.close()
     conexion.close()
