@@ -134,10 +134,10 @@ def admin():
             th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
             th { background-color: #0066cc; color: white; font-weight: bold; }
             tr:hover { background-color: #f8f9fa; }
-            .verde { background-color: #d4edda !important; }
-            .amarillo { background-color: #fff3cd !important; }
-            .rojo { background-color: #f8d7da !important; }
-            .azul { background-color: #d1ecf1 !important; }
+            .verde { background-color: #d4edda; color: #155724; font-weight: bold; text-align: center; }
+            .amarillo { background-color: #fff3cd; color: #856404; font-weight: bold; text-align: center; }
+            .rojo { background-color: #f8d7da; color: #721c24; font-weight: bold; text-align: center; }
+            .azul { background-color: #d1ecf1; color: #0c5460; font-weight: bold; text-align: center; }
             .btn-editar { background-color: #007bff; color: white; padding: 6px 12px; text-decoration: none; border-radius: 5px; font-size: 12px; display: inline-block; margin: 2px; }
             .btn-eliminar { background-color: #dc3545; color: white; padding: 6px 12px; text-decoration: none; border-radius: 5px; font-size: 12px; display: inline-block; margin: 2px; }
         </style>
@@ -187,7 +187,7 @@ def admin():
         edad = calcular_edad(c[15])
         
         html += f"""
-            <tr class="{color}">
+            <tr>
                 <td>{c[0]}</td>
                 <td>{c[1] or ''}</td>
                 <td>{c[2] or ''}</td>
@@ -203,7 +203,7 @@ def admin():
                 <td>{str(c[11])[:10] if c[11] else ''}</td>
                 <td>{c[12] or ''}</td>
                 <td>{c[13] or ''}</td>
-                <td>{c[14] or ''}</td>
+                <td class="{color}">{c[14] or ''}</td>
                 <td>
                     <a href="/editar/{c[0]}" class="btn-editar">✏️ Editar</a>
                     <a href="/eliminar/{c[0]}" class="btn-eliminar" onclick="return confirm('¿Eliminar a {c[1]}?')">🗑️ Eliminar</a>
