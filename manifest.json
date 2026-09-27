@@ -1,0 +1,21 @@
+{
+    "name": "Sistema de Recibos de Agua",
+    "short_name": "Recibos",
+    "description": "Sistema para gestión de recibos de agua y basura",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0066cc",
+    "theme_color": "#0066cc",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/3100/3100524.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/3100/3100524.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
