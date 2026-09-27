@@ -1,4 +1,4 @@
-from flask import Flask, request, session, redirect, url_for
+from flask import Flask, request, session, redirect, url_for, send_from_directory
 import psycopg2
 import os
 import bcrypt
@@ -22,6 +22,15 @@ def calcular_edad(fecha_nac):
     hoy = date.today()
     edad = hoy.year - fecha_nac.year - ((hoy.month, hoy.day) < (fecha_nac.month, fecha_nac.day))
     return edad
+
+# --- Rutas para la PWA ---
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('.', 'manifest.json')
+
+@app.route('/service-worker.js')
+def service_worker():
+    return send_from_directory('.', 'service-worker.js')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -51,6 +60,8 @@ def login():
     <head>
         <title>Login - Sistema de Recibos</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0066cc">
         <style>
             * {{ box-sizing: border-box; }}
             body {{ font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #0066cc 0%, #003d7a 100%); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }}
@@ -85,6 +96,9 @@ def login():
                 }} else {{
                     campo.type = "password";
                 }}
+            }}
+            if ('serviceWorker' in navigator) {{
+                navigator.serviceWorker.register('/service-worker.js');
             }}
         </script>
     </body>
@@ -122,6 +136,8 @@ def admin():
     <head>
         <title>Sistema de Recibos de Agua</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0066cc">
         <style>
             * { box-sizing: border-box; }
             body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }
@@ -214,6 +230,11 @@ def admin():
     html += """
         </table>
         </div>
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/service-worker.js');
+            }
+        </script>
     </body>
     </html>
     """
@@ -258,6 +279,8 @@ def cliente():
     <head>
         <title>Mi Recibo</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0066cc">
         <style>
             * {{ box-sizing: border-box; }}
             body {{ font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }}
@@ -289,6 +312,11 @@ def cliente():
             <div class="dato"><strong>Monto a Pagar:</strong> S/ {c[11] or ''}</div>
             <div class="dato"><strong>Mes:</strong> {c[12] or ''}</div>
         </div>
+        <script>
+            if ('serviceWorker' in navigator) {{
+                navigator.serviceWorker.register('/service-worker.js');
+            }}
+        </script>
     </body>
     </html>
     """
@@ -331,6 +359,8 @@ def agregar():
     <head>
         <title>Agregar Cliente</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0066cc">
         <style>
             * { box-sizing: border-box; }
             body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }
@@ -386,6 +416,11 @@ def agregar():
                 <button type="submit">💾 Guardar Cliente</button>
             </form>
         </div>
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/service-worker.js');
+            }
+        </script>
     </body>
     </html>
     """
@@ -453,6 +488,8 @@ def editar(id_cliente):
     <head>
         <title>Editar Cliente</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0066cc">
         <style>
             * {{ box-sizing: border-box; }}
             body {{ font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }}
@@ -508,6 +545,11 @@ def editar(id_cliente):
                 <button type="submit">💾 Guardar Cambios</button>
             </form>
         </div>
+        <script>
+            if ('serviceWorker' in navigator) {{
+                navigator.serviceWorker.register('/service-worker.js');
+            }}
+        </script>
     </body>
     </html>
     """
