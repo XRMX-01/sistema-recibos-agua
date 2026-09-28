@@ -23,7 +23,6 @@ def calcular_edad(fecha_nac):
     edad = hoy.year - fecha_nac.year - ((hoy.month, hoy.day) < (fecha_nac.month, fecha_nac.day))
     return edad
 
-# --- Rutas para la PWA ---
 @app.route('/manifest.json')
 def manifest():
     return send_from_directory('.', 'manifest.json')
