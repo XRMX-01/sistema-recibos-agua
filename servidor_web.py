@@ -31,6 +31,10 @@ def manifest():
 def service_worker():
     return send_from_directory('.', 'service-worker.js')
 
+@app.route('/icono.png')
+def icono():
+    return send_from_directory('.', 'icono.png')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
