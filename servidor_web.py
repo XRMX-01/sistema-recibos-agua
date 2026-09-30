@@ -251,8 +251,8 @@ def cliente():
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
-        SELECT c.nombre_completo, c.apellidos, c.dni, c.direccion, c.correo, c.celular, c.calle, c.mz, c.lote, 
-               c.fecha_pago, c.fecha_corte, c.monto_pagar, c.mes, c.estado, c.fecha_nacimiento 
+        SELECT id_cliente, nombre_completo, apellidos, dni, direccion, correo, celular, calle, mz, lote, 
+               fecha_pago, fecha_corte, monto_pagar, mes, estado, fecha_nacimiento 
         FROM clientes c
         INNER JOIN usuarios u ON c.id_cliente = u.id_cliente
         WHERE u.nombre_usuario = %s
@@ -264,7 +264,7 @@ def cliente():
     if not c:
         return "No se encontraron datos para este usuario. Contacte al administrador."
     
-    estado = c[13] if c[13] else "Puntual"
+    estado = c[14] if c[14] else "Puntual"
     color = ""
     if estado == "Puntual":
         color = "#d4edda"
@@ -275,7 +275,44 @@ def cliente():
     elif estado == "Justificado":
         color = "#d1ecf1"
     
-    edad = calcular_edad(c[14])
+    edad = calcular_edad(c[15])
+    
+    # Historial de facturas del cliente
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        SELECT mes, anio, monto, fecha_pago, fecha_corte, estado 
+        FROM facturas WHERE id_cliente = %s ORDER BY anio, id_factura
+    """, (c[0],))
+    facturas = cursor.fetchall()
+    cursor.close()
+    conexion.close()
+    
+    historial = ""
+    total_deuda = 0
+    for f in facturas:
+        if f[5] == "Puntual":
+            color_f = "verde"
+        elif f[5] == "Pendiente":
+            color_f = "amarillo"
+            total_deuda += f[2] if f[2] else 0
+        elif f[5] == "Deudor" or f[5] == "Corte":
+            color_f = "rojo"
+            total_deuda += f[2] if f[2] else 0
+        elif f[5] == "Justificado":
+            color_f = "azul"
+        else:
+            color_f = ""
+        
+        historial += f"""
+            <tr>
+                <td>{f[0]} {f[1]}</td>
+                <td>S/ {f[2] or ''}</td>
+                <td>{str(f[3])[:10] if f[3] else 'Sin pagar'}</td>
+                <td>{str(f[4])[:10] if f[4] else ''}</td>
+                <td class="{color_f}">{f[5] or ''}</td>
+            </tr>
+        """
     
     return f"""
     <html>
@@ -287,33 +324,52 @@ def cliente():
         <style>
             * {{ box-sizing: border-box; }}
             body {{ font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }}
-            .contenedor {{ max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+            .contenedor {{ max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
             h1 {{ color: #0066cc; text-align: center; }}
+            h2 {{ color: #0066cc; font-size: 18px; margin-top: 25px; }}
             .estado {{ padding: 15px; border-radius: 10px; text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0; background-color: {color}; }}
             .dato {{ margin: 10px 0; font-size: 15px; }}
             .dato strong {{ color: #0066cc; }}
             .logout {{ text-align: right; margin-bottom: 15px; }}
             .logout a {{ color: #dc3545; text-decoration: none; font-weight: bold; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }}
+            th, td {{ padding: 10px; text-align: left; border-bottom: 1px solid #eee; }}
+            th {{ background-color: #0066cc; color: white; }}
+            .verde {{ background-color: #d4edda; color: #155724; font-weight: bold; text-align: center; }}
+            .amarillo {{ background-color: #fff3cd; color: #856404; font-weight: bold; text-align: center; }}
+            .rojo {{ background-color: #f8d7da; color: #721c24; font-weight: bold; text-align: center; }}
+            .azul {{ background-color: #d1ecf1; color: #0c5460; font-weight: bold; text-align: center; }}
+            .total {{ background-color: #f8d7da; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center; font-size: 18px; font-weight: bold; color: #721c24; }}
         </style>
     </head>
     <body>
         <div class="contenedor">
             <div class="logout"><a href="/logout">Cerrar sesión</a></div>
             <h1>💧 Mi Recibo</h1>
-            <div class="estado">Estado: {estado}</div>
-            <div class="dato"><strong>Nombre:</strong> {c[0]} {c[1] or ''}</div>
-            <div class="dato"><strong>DNI:</strong> {c[2] or ''}</div>
+            <div class="estado">Estado actual: {estado}</div>
+            <div class="dato"><strong>Nombre:</strong> {c[1]} {c[2] or ''}</div>
+            <div class="dato"><strong>DNI:</strong> {c[3] or ''}</div>
             <div class="dato"><strong>Edad:</strong> {edad}</div>
-            <div class="dato"><strong>Dirección:</strong> {c[3] or ''}</div>
-            <div class="dato"><strong>Calle:</strong> {c[6] or ''}</div>
-            <div class="dato"><strong>Mz:</strong> {c[7] or ''}</div>
-            <div class="dato"><strong>Lote:</strong> {c[8] or ''}</div>
-            <div class="dato"><strong>Celular:</strong> {c[5] or ''}</div>
-            <div class="dato"><strong>Correo:</strong> {c[4] or ''}</div>
-            <div class="dato"><strong>Fecha de Pago:</strong> {str(c[9])[:10] if c[9] else 'Aún no ha pagado'}</div>
-            <div class="dato"><strong>Fecha de Corte:</strong> {str(c[10])[:10] if c[10] else ''}</div>
-            <div class="dato"><strong>Monto a Pagar:</strong> S/ {c[11] or ''}</div>
-            <div class="dato"><strong>Mes:</strong> {c[12] or ''}</div>
+            <div class="dato"><strong>Dirección:</strong> {c[4] or ''}</div>
+            <div class="dato"><strong>Calle:</strong> {c[7] or ''}</div>
+            <div class="dato"><strong>Mz:</strong> {c[8] or ''}</div>
+            <div class="dato"><strong>Lote:</strong> {c[9] or ''}</div>
+            <div class="dato"><strong>Celular:</strong> {c[6] or ''}</div>
+            <div class="dato"><strong>Correo:</strong> {c[5] or ''}</div>
+            
+            <h2>📋 Historial de Meses</h2>
+            <table>
+                <tr>
+                    <th>Mes</th>
+                    <th>Monto</th>
+                    <th>Fecha de Pago</th>
+                    <th>Fecha de Corte</th>
+                    <th>Estado</th>
+                </tr>
+                {historial}
+            </table>
+            
+            <div class="total">Deuda Total: S/ {total_deuda:.2f}</div>
         </div>
         <script>
             if ('serviceWorker' in navigator) {{
