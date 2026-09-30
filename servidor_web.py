@@ -123,13 +123,32 @@ def admin():
     if 'usuario' not in session or session.get('rol') != 'admin':
         return redirect(url_for('login'))
     
+    buscar = request.args.get('buscar', '')
+    
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute("""
-        SELECT id_cliente, nombre_completo, apellidos, dni, direccion, correo, celular, calle, mz, lote, 
-               fecha_pago, fecha_corte, monto_pagar, mes, estado, fecha_nacimiento 
-        FROM clientes ORDER BY id_cliente
-    """)
+    
+    if buscar:
+        cursor.execute("""
+            SELECT id_cliente, nombre_completo, apellidos, dni, direccion, correo, celular, calle, mz, lote, 
+                   fecha_pago, fecha_corte, monto_pagar, mes, estado, fecha_nacimiento 
+            FROM clientes 
+            WHERE nombre_completo ILIKE %s 
+               OR apellidos ILIKE %s 
+               OR dni ILIKE %s 
+               OR calle ILIKE %s 
+               OR mz ILIKE %s 
+               OR lote ILIKE %s 
+               OR estado ILIKE %s
+            ORDER BY id_cliente
+        """, (f'%{buscar}%', f'%{buscar}%', f'%{buscar}%', f'%{buscar}%', f'%{buscar}%', f'%{buscar}%', f'%{buscar}%'))
+    else:
+        cursor.execute("""
+            SELECT id_cliente, nombre_completo, apellidos, dni, direccion, correo, celular, calle, mz, lote, 
+                   fecha_pago, fecha_corte, monto_pagar, mes, estado, fecha_nacimiento 
+            FROM clientes ORDER BY id_cliente
+        """)
+    
     clientes = cursor.fetchall()
     cursor.close()
     conexion.close()
@@ -148,6 +167,11 @@ def admin():
             .header h1 { color: #0066cc; margin: 0; font-size: 22px; }
             .header a { color: #dc3545; text-decoration: none; font-weight: bold; }
             .btn-agregar { background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; box-shadow: 0 2px 5px rgba(40,167,69,0.3); }
+            .buscador { display: flex; gap: 10px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+            .buscador input { flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }
+            .buscador input:focus { border-color: #0066cc; outline: none; }
+            .buscador button { background: linear-gradient(135deg, #0066cc, #004a99); color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+            .buscador a { background: #6c757d; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; }
             .tabla-container { overflow-x: auto; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 10px; }
             table { width: 100%; border-collapse: collapse; font-size: 13px; }
             th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
@@ -168,6 +192,11 @@ def admin():
         </div>
         <a href="/agregar" class="btn-agregar">+ Agregar Cliente</a>
         <br><br>
+        <form class="buscador" method="GET">
+            <input type="text" name="buscar" placeholder="Buscar por nombre, DNI, calle, Mz, lote o estado..." value="{buscar}">
+            <button type="submit">🔍 Buscar</button>
+            <a href="/admin">Mostrar todos</a>
+        </form>
         <div class="tabla-container">
         <table>
             <tr>
@@ -230,13 +259,13 @@ def admin():
             </tr>
         """
 
-    html += """
+    html += f"""
         </table>
         </div>
         <script>
-            if ('serviceWorker' in navigator) {
+            if ('serviceWorker' in navigator) {{
                 navigator.serviceWorker.register('/service-worker.js');
-            }
+            }}
         </script>
     </body>
     </html>
@@ -251,12 +280,12 @@ def cliente():
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
-    SELECT c.id_cliente, c.nombre_completo, c.apellidos, c.dni, c.direccion, c.correo, c.celular, c.calle, c.mz, c.lote, 
-           c.fecha_pago, c.fecha_corte, c.monto_pagar, c.mes, c.estado, c.fecha_nacimiento 
-    FROM clientes c
-    INNER JOIN usuarios u ON c.id_cliente = u.id_cliente
-    WHERE u.nombre_usuario = %s
-""", (session['usuario'],))
+        SELECT c.id_cliente, c.nombre_completo, c.apellidos, c.dni, c.direccion, c.correo, c.celular, c.calle, c.mz, c.lote, 
+               c.fecha_pago, c.fecha_corte, c.monto_pagar, c.mes, c.estado, c.fecha_nacimiento 
+        FROM clientes c
+        INNER JOIN usuarios u ON c.id_cliente = u.id_cliente
+        WHERE u.nombre_usuario = %s
+    """, (session['usuario'],))
     c = cursor.fetchone()
     cursor.close()
     conexion.close()
@@ -277,7 +306,6 @@ def cliente():
     
     edad = calcular_edad(c[15])
     
-    # Historial de facturas del cliente
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
@@ -597,41 +625,4 @@ def editar(id_cliente):
                 <label>Estado:</label>
                 <select name="estado">
                     <option value="Puntual" {'selected' if c[14] == 'Puntual' else ''}>Puntual</option>
-                    <option value="Pendiente" {'selected' if c[14] == 'Pendiente' else ''}>Pendiente</option>
-                    <option value="Deudor" {'selected' if c[14] == 'Deudor' else ''}>Deudor</option>
-                    <option value="Justificado" {'selected' if c[14] == 'Justificado' else ''}>Justificado</option>
-                </select>
-                <button type="submit">💾 Guardar Cambios</button>
-            </form>
-        </div>
-        <script>
-            if ('serviceWorker' in navigator) {{
-                navigator.serviceWorker.register('/service-worker.js');
-            }}
-        </script>
-    </body>
-    </html>
-    """
-
-@app.route('/eliminar/<int:id_cliente>')
-def eliminar(id_cliente):
-    if 'usuario' not in session or session.get('rol') != 'admin':
-        return redirect(url_for('login'))
-    
-    conexion = conectar()
-    cursor = conexion.cursor()
-    cursor.execute("DELETE FROM clientes WHERE id_cliente = %s", (id_cliente,))
-    conexion.commit()
-    cursor.close()
-    conexion.close()
-    return redirect(url_for('admin'))
-
-@app.route('/logout')
-def logout():
-    session.pop('usuario', None)
-    session.pop('rol', None)
-    return redirect(url_for('login'))
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+                    <option value="Pendiente" {'
