@@ -251,12 +251,12 @@ def cliente():
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
-        SELECT id_cliente, nombre_completo, apellidos, dni, direccion, correo, celular, calle, mz, lote, 
-               fecha_pago, fecha_corte, monto_pagar, mes, estado, fecha_nacimiento 
-        FROM clientes c
-        INNER JOIN usuarios u ON c.id_cliente = u.id_cliente
-        WHERE u.nombre_usuario = %s
-    """, (session['usuario'],))
+    SELECT c.id_cliente, c.nombre_completo, c.apellidos, c.dni, c.direccion, c.correo, c.celular, c.calle, c.mz, c.lote, 
+           c.fecha_pago, c.fecha_corte, c.monto_pagar, c.mes, c.estado, c.fecha_nacimiento 
+    FROM clientes c
+    INNER JOIN usuarios u ON c.id_cliente = u.id_cliente
+    WHERE u.nombre_usuario = %s
+""", (session['usuario'],))
     c = cursor.fetchone()
     cursor.close()
     conexion.close()
