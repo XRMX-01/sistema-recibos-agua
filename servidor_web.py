@@ -124,6 +124,7 @@ def admin():
         return redirect(url_for('login'))
     
     buscar = request.args.get('buscar', '')
+    mensaje = request.args.get('mensaje', '')
     
     conexion = conectar()
     cursor = conexion.cursor()
@@ -167,6 +168,8 @@ def admin():
             .header h1 {{ color: #0066cc; margin: 0; font-size: 22px; }}
             .header a {{ color: #dc3545; text-decoration: none; font-weight: bold; }}
             .btn-agregar {{ background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; box-shadow: 0 2px 5px rgba(40,167,69,0.3); }}
+            .btn-mes {{ background: linear-gradient(135deg, #ffc107, #d39e00); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; box-shadow: 0 2px 5px rgba(255,193,7,0.3); margin-left: 10px; }}
+            .mensaje {{ background-color: #d4edda; color: #155724; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; }}
             .buscador {{ display: flex; gap: 10px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }}
             .buscador input {{ flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }}
             .buscador input:focus {{ border-color: #0066cc; outline: none; }}
@@ -191,7 +194,9 @@ def admin():
             <a href="/logout">Cerrar sesión</a>
         </div>
         <a href="/agregar" class="btn-agregar">+ Agregar Cliente</a>
+        <a href="/generar_mes" class="btn-mes">📅 Generar Mes Nuevo</a>
         <br><br>
+        {f'<div class="mensaje">{mensaje}</div>' if mensaje else ''}
         <form class="buscador" method="GET">
             <input type="text" name="buscar" placeholder="Buscar por nombre, DNI, calle, Mz, lote o estado..." value="{buscar}">
             <button type="submit">🔍 Buscar</button>
@@ -271,6 +276,98 @@ def admin():
     </html>
     """
     return html
+
+@app.route('/generar_mes', methods=['GET', 'POST'])
+def generar_mes():
+    if 'usuario' not in session or session.get('rol') != 'admin':
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        mes = request.form['mes']
+        anio = request.form['anio']
+        monto = request.form['monto']
+        fecha_corte = request.form['fecha_corte']
+        
+        conexion = conectar()
+        cursor = conexion.cursor()
+        
+        # Obtener todos los clientes
+        cursor.execute("SELECT id_cliente FROM clientes")
+        clientes = cursor.fetchall()
+        
+        # Crear factura para cada cliente
+        for c in clientes:
+            cursor.execute("""
+                INSERT INTO facturas (id_cliente, mes, anio, monto, fecha_corte, estado)
+                VALUES (%s, %s, %s, %s, %s, 'Pendiente')
+            """, (c[0], mes, anio, monto, fecha_corte))
+        
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+        
+        return redirect(url_for('admin', mensaje=f'✅ Se generó el mes de {mes} {anio} para {len(clientes)} clientes.'))
+    
+    return """
+    <html>
+    <head>
+        <title>Generar Mes Nuevo</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0066cc">
+        <style>
+            * { box-sizing: border-box; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }
+            .contenedor { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            h1 { color: #0066cc; margin-top: 0; }
+            label { font-size: 13px; color: #555; font-weight: bold; }
+            input, select { width: 100%; padding: 10px; margin: 5px 0 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+            input:focus, select:focus { border-color: #0066cc; outline: none; }
+            button { background: linear-gradient(135deg, #ffc107, #d39e00); color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+            .volver { display: inline-block; margin-bottom: 15px; color: #0066cc; text-decoration: none; font-weight: bold; }
+            .info { background-color: #d1ecf1; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; color: #0c5460; }
+        </style>
+    </head>
+    <body>
+        <div class="contenedor">
+            <a href="/admin" class="volver">← Volver a la lista</a>
+            <h1>📅 Generar Mes Nuevo</h1>
+            <div class="info">
+                Este botón crea una factura nueva (pendiente) para TODOS los clientes. Úsalo cada mes.
+            </div>
+            <form method="POST">
+                <label>Mes:</label>
+                <select name="mes">
+                    <option value="Enero">Enero</option>
+                    <option value="Febrero">Febrero</option>
+                    <option value="Marzo">Marzo</option>
+                    <option value="Abril">Abril</option>
+                    <option value="Mayo">Mayo</option>
+                    <option value="Junio">Junio</option>
+                    <option value="Julio">Julio</option>
+                    <option value="Agosto">Agosto</option>
+                    <option value="Septiembre">Septiembre</option>
+                    <option value="Octubre">Octubre</option>
+                    <option value="Noviembre">Noviembre</option>
+                    <option value="Diciembre">Diciembre</option>
+                </select>
+                <label>Año:</label>
+                <input type="number" name="anio" value="2026" required>
+                <label>Monto a Cobrar (S/):</label>
+                <input type="number" step="0.01" name="monto" value="10.00" required>
+                <label>Fecha de Corte:</label>
+                <input type="date" name="fecha_corte" required>
+                <button type="submit">✅ Generar Mes para Todos</button>
+            </form>
+        </div>
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/service-worker.js');
+            }
+        </script>
+    </body>
+    </html>
+    """
 
 @app.route('/cliente')
 def cliente():
