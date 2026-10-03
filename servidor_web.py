@@ -431,7 +431,7 @@ def pdf_cliente():
     pdf.set_font("helvetica", "B", 12)
     pdf.cell(0, 10, limpiar_texto(f"Deuda Total: S/ {total:.2f}"), ln=True, align="R")
     
-    response = make_response(pdf.output(dest='S').encode('latin-1'))
+    response = make_response(pdf.output(dest='S'))
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'inline; filename=mi_recibo.pdf'
     return response
