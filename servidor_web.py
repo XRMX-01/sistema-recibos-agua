@@ -360,7 +360,7 @@ def pdf_admin():
         pdf.cell(25, 8, limpiar_texto(c[9] or '')[:12], 1)
         pdf.ln()
     
-    response = make_response(pdf.output(dest='S'))
+    response = make_response(bytes(pdf.output(dest='S')))
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'inline; filename=lista_clientes.pdf'
     return response
