@@ -373,7 +373,7 @@ def pdf_cliente():
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
-        SELECT c.id_cliente, c.nombre_completo, c.apellidos, c.dni, c.direccion, c.calle, c.mz, c.lote, c.celular
+        SELECT c.id_cliente, c.nombre_completo, c.apellidos, c.dni, c.direccion, c.calle, c.mz, c.lote, c.celular, c.correo, c.categoria
         FROM clientes c
         INNER JOIN usuarios u ON c.id_cliente = u.id_cliente
         WHERE u.nombre_usuario = %s
@@ -393,43 +393,98 @@ def pdf_cliente():
     cursor.close()
     conexion.close()
     
+    # Crear PDF con el diseño del recibo
     pdf = FPDF()
     pdf.add_page()
+    pdf.set_margins(15, 10, 15)
+    
+    # Encabezado
+    pdf.set_font("helvetica", "B", 12)
+    pdf.cell(0, 6, limpiar_texto("JUNTA ADMINISTRADORA DE SERVICIOS Y SANEAMIENTO"), ln=True, align="C")
     pdf.set_font("helvetica", "B", 16)
-    pdf.cell(0, 10, limpiar_texto("RECIBO DE AGUA"), ln=True, align="C")
-    pdf.ln(5)
+    pdf.cell(0, 8, limpiar_texto("JASS - CHANQUIN - STA. MARIA"), ln=True, align="C")
+    pdf.set_font("helvetica", "I", 8)
+    pdf.cell(0, 5, limpiar_texto("Santa Maria Mza. 4 Lote 09 (frente Loza Deportiva) - Puente Viru - Viru"), ln=True, align="C")
+    pdf.ln(3)
     
-    pdf.set_font("helvetica", size=12)
-    pdf.cell(0, 8, limpiar_texto(f"Cliente: {c[1]} {c[2] or ''}"), ln=True)
-    pdf.cell(0, 8, limpiar_texto(f"DNI: {c[3] or ''}"), ln=True)
-    pdf.cell(0, 8, limpiar_texto(f"Direccion: {c[4] or ''}"), ln=True)
-    pdf.cell(0, 8, limpiar_texto(f"Calle: {c[5] or ''}  Mz: {c[6] or ''}  Lote: {c[7] or ''}"), ln=True)
-    pdf.cell(0, 8, limpiar_texto(f"Celular: {c[8] or ''}"), ln=True)
-    pdf.ln(5)
-    
+    # Cuadro de Mes y Vencimiento
     pdf.set_font("helvetica", "B", 10)
-    pdf.cell(30, 8, "Mes", 1)
-    pdf.cell(25, 8, "Monto", 1)
-    pdf.cell(30, 8, "Fecha Pago", 1)
-    pdf.cell(30, 8, "Fecha Corte", 1)
-    pdf.cell(30, 8, "Estado", 1)
+    pdf.cell(60, 8, limpiar_texto("Mes:"), 1)
+    if facturas:
+        ultimo_mes = facturas[-1][0]
+        anio = facturas[-1][1]
+        pdf.cell(60, 8, limpiar_texto(f"{ultimo_mes} {anio}"), 1)
+    else:
+        pdf.cell(60, 8, limpiar_texto("Sin facturas"), 1)
+    pdf.set_font("helvetica", "B", 10)
+    pdf.cell(60, 8, limpiar_texto("N° 000001"), 1)
     pdf.ln()
     
-    pdf.set_font("helvetica", size=10)
-    total = 0
-    for f in facturas:
-        pdf.cell(30, 8, limpiar_texto(f"{f[0]} {f[1]}"), 1)
-        pdf.cell(25, 8, f"S/ {f[2] or ''}", 1)
-        pdf.cell(30, 8, str(f[3])[:10] if f[3] else 'Sin pagar', 1)
-        pdf.cell(30, 8, str(f[4])[:10] if f[4] else '', 1)
-        pdf.cell(30, 8, limpiar_texto(f[5] or ''), 1)
-        pdf.ln()
-        if f[5] in ['Pendiente', 'Deudor', 'Corte']:
-            total += f[2] if f[2] else 0
+    pdf.set_font("helvetica", "B", 10)
+    pdf.cell(60, 8, limpiar_texto("Fecha de Vencimiento:"), 1)
+    if facturas:
+        fecha_corte = facturas[-1][4]
+        pdf.cell(60, 8, limpiar_texto(str(fecha_corte)[:10] if fecha_corte else ''), 1)
+    else:
+        pdf.cell(60, 8, limpiar_texto(""), 1)
+    pdf.cell(60, 8, limpiar_texto(""), 1)
+    pdf.ln(10)
     
-    pdf.ln(5)
-    pdf.set_font("helvetica", "B", 12)
-    pdf.cell(0, 10, limpiar_texto(f"Deuda Total: S/ {total:.2f}"), ln=True, align="R")
+    # Datos del cliente
+    pdf.set_font("helvetica", "B", 10)
+    pdf.cell(30, 8, limpiar_texto("Usuario(a):"), 1)
+    pdf.set_font("helvetica", size=10)
+    pdf.cell(150, 8, limpiar_texto(f"{c[1]} {c[2] or ''}"), 1)
+    pdf.ln()
+    
+    pdf.set_font("helvetica", "B", 10)
+    pdf.cell(30, 8, limpiar_texto("Sector:"), 1)
+    pdf.set_font("helvetica", size=10)
+    pdf.cell(150, 8, limpiar_texto(f"{c[5] or ''} Mz {c[6] or ''} Lote {c[7] or ''}"), 1)
+    pdf.ln(10)
+    
+    # Tabla de Conceptos
+    pdf.set_font("helvetica", "B", 11)
+    pdf.set_fill_color(0, 102, 204)
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(150, 8, limpiar_texto("CONCEPTO"), 1, 0, "C", True)
+    pdf.cell(30, 8, limpiar_texto("IMPORTE S/"), 1, 0, "C", True)
+    pdf.ln()
+    
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("helvetica", size=10)
+    
+    total = 0
+    if facturas:
+        for f in facturas:
+            pdf.cell(150, 8, limpiar_texto(f"Cuota de Agua - {f[0]} {f[1]}"), 1)
+            pdf.cell(30, 8, f"{f[2]:.2f}" if f[2] else "0.00", 1, 0, "R")
+            pdf.ln()
+            if f[5] in ['Pendiente', 'Deudor', 'Corte']:
+                total += f[2] if f[2] else 0
+    
+    pdf.cell(150, 8, limpiar_texto("Reposicion     Inscripcion     Multa"), 1)
+    pdf.cell(30, 8, "", 1)
+    pdf.ln()
+    
+    pdf.cell(150, 8, limpiar_texto("Deuda atrasada"), 1)
+    pdf.cell(30, 8, "", 1)
+    pdf.ln()
+    
+    pdf.cell(150, 8, limpiar_texto("Por concepto de:"), 1)
+    pdf.cell(30, 8, "", 1)
+    pdf.ln()
+    
+    pdf.set_font("helvetica", "B", 10)
+    pdf.cell(150, 10, limpiar_texto("TOTAL S/"), 1, 0, "R")
+    pdf.cell(30, 10, f"{total:.2f}", 1, 0, "R")
+    pdf.ln(15)
+    
+    # Pie de página
+    pdf.set_font("helvetica", "I", 7)
+    pdf.cell(0, 5, limpiar_texto("Vecino(a): pague a tiempo su recibo y evite el corte y el pago de reposicion de servicio."), ln=True)
+    pdf.cell(0, 5, limpiar_texto("A LOS CLANDESTINOS: El Hurto del agua es un delito contra el patrimonio, penado por Ley."), ln=True)
+    pdf.cell(0, 5, limpiar_texto("El Agua es Vida ¡Cuidala! ... ¡Todos lo necesitamos!"), ln=True, align="C")
     
     response = make_response(bytes(pdf.output(dest='S')))
     response.headers['Content-Type'] = 'application/pdf'
