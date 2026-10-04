@@ -84,10 +84,9 @@ def login():
             .login-box {{ background: white; padding: 40px 30px; border-radius: 15px; width: 340px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; }}
             .logo {{ font-size: 40px; margin-bottom: 10px; }}
             h1 {{ color: #0066cc; font-size: 22px; margin-bottom: 25px; }}
-            input {{ width: 100%; padding: 12px 15px; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: border 0.3s; }}
+            input {{ width: 100%; padding: 12px 15px; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }}
             input:focus {{ border-color: #0066cc; outline: none; }}
-            button {{ background: linear-gradient(135deg, #0066cc, #004a99); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; transition: transform 0.2s; }}
-            button:hover {{ transform: scale(1.02); }}
+            button {{ background: linear-gradient(135deg, #0066cc, #004a99); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; }}
             .error {{ color: #dc3545; font-size: 13px; margin-top: 10px; }}
             label {{ font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }}
         </style>
@@ -180,21 +179,19 @@ def admin():
             .header {{ display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }}
             .header h1 {{ color: #0066cc; margin: 0; font-size: 22px; }}
             .header a {{ color: #dc3545; text-decoration: none; font-weight: bold; }}
-            .btn-agregar {{ background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; box-shadow: 0 2px 5px rgba(40,167,69,0.3); }}
-            .btn-mes {{ background: linear-gradient(135deg, #ffc107, #d39e00); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; box-shadow: 0 2px 5px rgba(255,193,7,0.3); margin-left: 10px; }}
-            .btn-borrar {{ background: linear-gradient(135deg, #dc3545, #a71d2a); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; box-shadow: 0 2px 5px rgba(220,53,69,0.3); margin-left: 10px; }}
-            .btn-pdf {{ background: linear-gradient(135deg, #6f42c1, #4b2a89); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; box-shadow: 0 2px 5px rgba(111,66,193,0.3); margin-left: 10px; }}
+            .btn-agregar {{ background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; }}
+            .btn-mes {{ background: linear-gradient(135deg, #ffc107, #d39e00); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; margin-left: 10px; }}
+            .btn-borrar {{ background: linear-gradient(135deg, #dc3545, #a71d2a); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; margin-left: 10px; }}
+            .btn-pdf {{ background: linear-gradient(135deg, #6f42c1, #4b2a89); color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; display: inline-block; font-weight: bold; margin-left: 10px; }}
             .mensaje {{ background-color: #d4edda; color: #155724; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; }}
             .buscador {{ display: flex; gap: 10px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }}
             .buscador input {{ flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }}
-            .buscador input:focus {{ border-color: #0066cc; outline: none; }}
             .buscador button {{ background: linear-gradient(135deg, #0066cc, #004a99); color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }}
             .buscador a {{ background: #6c757d; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; }}
             .tabla-container {{ overflow-x: auto; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 10px; }}
             table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
             th, td {{ padding: 10px; text-align: left; border-bottom: 1px solid #eee; }}
             th {{ background-color: #0066cc; color: white; font-weight: bold; }}
-            tr:hover {{ background-color: #f8f9fa; }}
             .verde {{ background-color: #d4edda; color: #155724; font-weight: bold; text-align: center; }}
             .amarillo {{ background-color: #fff3cd; color: #856404; font-weight: bold; text-align: center; }}
             .rojo {{ background-color: #f8d7da; color: #721c24; font-weight: bold; text-align: center; }}
@@ -210,7 +207,7 @@ def admin():
         </div>
         <a href="/agregar" class="btn-agregar">+ Agregar Cliente</a>
         <a href="/generar_mes" class="btn-mes">📅 Generar Mes Nuevo</a>
-        <a href="/borrar_mes" class="btn-borrar" onclick="return confirm('¿Seguro que quieres borrar un mes?')">🗑️ Borrar Mes</a>
+        <a href="/borrar_mes" class="btn-borrar">🗑️ Borrar Mes</a>
         <a href="/pdf_admin?buscar={buscar}" class="btn-pdf" target="_blank">📄 Imprimir PDF</a>
         <br><br>
         {f'<div class="mensaje">{mensaje}</div>' if mensaje else ''}
@@ -227,16 +224,9 @@ def admin():
                 <th>Apellidos</th>
                 <th>DNI</th>
                 <th>Edad</th>
-                <th>Dirección</th>
-                <th>Correo</th>
-                <th>Celular</th>
                 <th>Calle</th>
                 <th>Mz</th>
                 <th>Lote</th>
-                <th>Fecha Pago</th>
-                <th>Fecha Corte</th>
-                <th>Monto</th>
-                <th>Mes</th>
                 <th>Estado</th>
                 <th>Acciones</th>
             </tr>
@@ -263,16 +253,9 @@ def admin():
                 <td>{c[2] or ''}</td>
                 <td>{c[3] or ''}</td>
                 <td>{edad}</td>
-                <td>{c[4] or ''}</td>
-                <td>{c[5] or ''}</td>
-                <td>{c[6] or ''}</td>
                 <td>{c[7] or ''}</td>
                 <td>{c[8] or ''}</td>
                 <td>{c[9] or ''}</td>
-                <td>{str(c[10])[:10] if c[10] else ''}</td>
-                <td>{str(c[11])[:10] if c[11] else ''}</td>
-                <td>{c[12] or ''}</td>
-                <td>{c[13] or ''}</td>
                 <td class="{color}">{c[14] or ''}</td>
                 <td>
                     <a href="/editar/{c[0]}" class="btn-editar">✏️ Editar</a>
@@ -380,7 +363,8 @@ def pdf_cliente():
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
-        SELECT c.id_cliente, c.nombre_completo, c.apellidos, c.dni, c.direccion, c.calle, c.mz, c.lote, c.celular
+        SELECT c.id_cliente, c.nombre_completo, c.apellidos, c.dni, c.direccion, c.calle, c.mz, c.lote, c.celular,
+               c.reposicion, c.inscripcion, c.multa
         FROM clientes c
         INNER JOIN usuarios u ON c.id_cliente = u.id_cliente
         WHERE u.nombre_usuario = %s
@@ -446,6 +430,7 @@ def pdf_cliente():
     pdf.cell(150, 8, limpiar_texto(f"{c[5] or ''} Mz {c[6] or ''} Lote {c[7] or ''}"), 1)
     pdf.ln(10)
     
+    # Tabla CONCEPTO
     pdf.set_font("helvetica", "B", 11)
     pdf.set_fill_color(0, 102, 204)
     pdf.set_text_color(255, 255, 255)
@@ -465,7 +450,14 @@ def pdf_cliente():
             if f[5] in ['Pendiente', 'Deudor', 'Corte']:
                 total += f[2] if f[2] else 0
     
-    pdf.cell(150, 8, limpiar_texto("Reposicion     Inscripcion     Multa"), 1)
+    # Cuadro Reposición / Inscripción / Multa
+    marcado_repo = "X" if c[9] else ""
+    marcado_insc = "X" if c[10] else ""
+    marcado_multa = "X" if c[11] else ""
+    
+    pdf.cell(50, 8, limpiar_texto(f"Reposición [{marcado_repo}]"), 1)
+    pdf.cell(50, 8, limpiar_texto(f"Inscripción [{marcado_insc}]"), 1)
+    pdf.cell(50, 8, limpiar_texto(f"Multa [{marcado_multa}]"), 1)
     pdf.cell(30, 8, "", 1)
     pdf.ln()
     
@@ -544,9 +536,7 @@ def generar_mes():
         <div class="contenedor">
             <a href="/admin" class="volver">← Volver a la lista</a>
             <h1>📅 Generar Mes Nuevo</h1>
-            <div class="info">
-                Este botón crea una factura nueva (pendiente) para TODOS los clientes. Úsalo cada mes.
-            </div>
+            <div class="info">Este botón crea una factura nueva (pendiente) para TODOS los clientes.</div>
             <form method="POST">
                 <label>Mes:</label>
                 <select name="mes">
@@ -589,7 +579,6 @@ def borrar_mes():
     if request.method == 'POST':
         mes = request.form['mes']
         anio = request.form['anio']
-        
         conexion = conectar()
         cursor = conexion.cursor()
         cursor.execute("DELETE FROM facturas WHERE mes = %s AND anio = %s", (mes, anio))
@@ -597,7 +586,6 @@ def borrar_mes():
         conexion.commit()
         cursor.close()
         conexion.close()
-        
         return redirect(url_for('admin', mensaje=f'🗑️ Se eliminaron {eliminados} facturas del mes de {mes} {anio}.'))
     
     return """
@@ -614,7 +602,6 @@ def borrar_mes():
             h1 { color: #dc3545; margin-top: 0; }
             label { font-size: 13px; color: #555; font-weight: bold; }
             input, select { width: 100%; padding: 10px; margin: 5px 0 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-            input:focus, select:focus { border-color: #dc3545; outline: none; }
             button { background: linear-gradient(135deg, #dc3545, #a71d2a); color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
             .volver { display: inline-block; margin-bottom: 15px; color: #0066cc; text-decoration: none; font-weight: bold; }
             .alerta { background-color: #f8d7da; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; color: #721c24; }
@@ -624,10 +611,8 @@ def borrar_mes():
         <div class="contenedor">
             <a href="/admin" class="volver">← Volver a la lista</a>
             <h1>🗑️ Borrar Mes</h1>
-            <div class="alerta">
-                ⚠️ Esta acción elimina TODAS las facturas de un mes específico para TODOS los clientes. No se puede deshacer.
-            </div>
-            <form method="POST" onsubmit="return confirm('¿Estás seguro que quieres borrar TODAS las facturas de este mes?')">
+            <div class="alerta">⚠️ Esta acción elimina TODAS las facturas de un mes específico. No se puede deshacer.</div>
+            <form method="POST" onsubmit="return confirm('¿Estás seguro?')">
                 <label>Mes:</label>
                 <select name="mes">
                     <option value="Enero">Enero</option>
@@ -676,7 +661,7 @@ def cliente():
     conexion.close()
     
     if not c:
-        return "No se encontraron datos para este usuario. Contacte al administrador."
+        return "No se encontraron datos."
     
     estado = c[14] if c[14] else "Puntual"
     color = ""
@@ -855,7 +840,6 @@ def agregar():
             h1 { color: #0066cc; margin-top: 0; }
             label { font-size: 13px; color: #555; font-weight: bold; }
             input, select { width: 100%; padding: 10px; margin: 5px 0 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-            input:focus, select:focus { border-color: #0066cc; outline: none; }
             button { background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
             .volver { display: inline-block; margin-bottom: 15px; color: #0066cc; text-decoration: none; font-weight: bold; }
         </style>
@@ -922,7 +906,8 @@ def editar(id_cliente):
         cursor = conexion.cursor()
         cursor.execute("""
             UPDATE clientes SET nombre_completo=%s, apellidos=%s, dni=%s, direccion=%s, correo=%s, celular=%s, 
-            calle=%s, mz=%s, lote=%s, fecha_pago=%s, fecha_corte=%s, monto_pagar=%s, mes=%s, estado=%s, fecha_nacimiento=%s
+            calle=%s, mz=%s, lote=%s, fecha_pago=%s, fecha_corte=%s, monto_pagar=%s, mes=%s, estado=%s, fecha_nacimiento=%s,
+            reposicion=%s, inscripcion=%s, multa=%s
             WHERE id_cliente=%s
         """, (
             request.form['nombre_completo'],
@@ -940,6 +925,9 @@ def editar(id_cliente):
             request.form['mes'],
             request.form['estado'],
             request.form['fecha_nacimiento'] or None,
+            request.form.get('reposicion', ''),
+            request.form.get('inscripcion', ''),
+            request.form.get('multa', ''),
             id_cliente
         ))
         conexion.commit()
@@ -949,7 +937,7 @@ def editar(id_cliente):
     
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute("SELECT id_cliente, nombre_completo, apellidos, dni, direccion, correo, celular, calle, mz, lote, fecha_pago, fecha_corte, monto_pagar, mes, estado, fecha_nacimiento FROM clientes WHERE id_cliente = %s", (id_cliente,))
+    cursor.execute("SELECT id_cliente, nombre_completo, apellidos, dni, direccion, correo, celular, calle, mz, lote, fecha_pago, fecha_corte, monto_pagar, mes, estado, fecha_nacimiento, reposicion, inscripcion, multa FROM clientes WHERE id_cliente = %s", (id_cliente,))
     c = cursor.fetchone()
     cursor.close()
     conexion.close()
@@ -958,17 +946,9 @@ def editar(id_cliente):
     fecha_corte = str(c[11])[:10] if c[11] else ''
     fecha_nac = str(c[15])[:10] if c[15] else ''
     
-    nombre = c[1] if c[1] else ''
-    apellidos = c[2] if c[2] else ''
-    dni = c[3] if c[3] else ''
-    direccion = c[4] if c[4] else ''
-    correo = c[5] if c[5] else ''
-    celular = c[6] if c[6] else ''
-    calle = c[7] if c[7] else ''
-    mz = c[8] if c[8] else ''
-    lote = c[9] if c[9] else ''
-    monto = c[12] if c[12] else ''
-    mes = c[13] if c[13] else ''
+    repo_check = 'checked' if c[16] else ''
+    insc_check = 'checked' if c[17] else ''
+    multa_check = 'checked' if c[18] else ''
     
     return f"""
     <html>
@@ -984,9 +964,10 @@ def editar(id_cliente):
             h1 {{ color: #0066cc; margin-top: 0; }}
             label {{ font-size: 13px; color: #555; font-weight: bold; }}
             input, select {{ width: 100%; padding: 10px; margin: 5px 0 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; font-size: 14px; }}
-            input:focus, select:focus {{ border-color: #0066cc; outline: none; }}
             button {{ background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }}
             .volver {{ display: inline-block; margin-bottom: 15px; color: #0066cc; text-decoration: none; font-weight: bold; }}
+            .check-group {{ display: flex; gap: 15px; margin-bottom: 12px; }}
+            .check-group label {{ font-size: 14px; display: flex; align-items: center; gap: 5px; }}
         </style>
     </head>
     <body>
@@ -995,33 +976,33 @@ def editar(id_cliente):
             <h1>✏️ Editar Cliente</h1>
             <form method="POST">
                 <label>Nombres:</label>
-                <input type="text" name="nombre_completo" value="{nombre}" required>
+                <input type="text" name="nombre_completo" value="{c[1] or ''}" required>
                 <label>Apellidos:</label>
-                <input type="text" name="apellidos" value="{apellidos}">
+                <input type="text" name="apellidos" value="{c[2] or ''}">
                 <label>DNI:</label>
-                <input type="text" name="dni" value="{dni}" maxlength="8">
+                <input type="text" name="dni" value="{c[3] or ''}" maxlength="8">
                 <label>Fecha de Nacimiento:</label>
                 <input type="date" name="fecha_nacimiento" value="{fecha_nac}">
                 <label>Dirección:</label>
-                <input type="text" name="direccion" value="{direccion}">
+                <input type="text" name="direccion" value="{c[4] or ''}">
                 <label>Correo:</label>
-                <input type="email" name="correo" value="{correo}">
+                <input type="email" name="correo" value="{c[5] or ''}">
                 <label>Celular:</label>
-                <input type="text" name="celular" value="{celular}">
+                <input type="text" name="celular" value="{c[6] or ''}">
                 <label>Calle:</label>
-                <input type="text" name="calle" value="{calle}">
+                <input type="text" name="calle" value="{c[7] or ''}">
                 <label>Mz:</label>
-                <input type="text" name="mz" value="{mz}">
+                <input type="text" name="mz" value="{c[8] or ''}">
                 <label>Lote:</label>
-                <input type="text" name="lote" value="{lote}">
+                <input type="text" name="lote" value="{c[9] or ''}">
                 <label>Fecha de Pago:</label>
                 <input type="date" name="fecha_pago" value="{fecha_pago}">
                 <label>Fecha de Corte:</label>
                 <input type="date" name="fecha_corte" value="{fecha_corte}">
                 <label>Monto a Pagar:</label>
-                <input type="number" step="0.01" name="monto_pagar" value="{monto}">
+                <input type="number" step="0.01" name="monto_pagar" value="{c[12] or ''}">
                 <label>Mes:</label>
-                <input type="text" name="mes" value="{mes}">
+                <input type="text" name="mes" value="{c[13] or ''}">
                 <label>Estado:</label>
                 <select name="estado">
                     <option value="Puntual" {'selected' if c[14] == 'Puntual' else ''}>Puntual</option>
@@ -1029,6 +1010,14 @@ def editar(id_cliente):
                     <option value="Deudor" {'selected' if c[14] == 'Deudor' else ''}>Deudor</option>
                     <option value="Justificado" {'selected' if c[14] == 'Justificado' else ''}>Justificado</option>
                 </select>
+                
+                <label>Conceptos adicionales:</label>
+                <div class="check-group">
+                    <label><input type="checkbox" name="reposicion" value="X" {repo_check}> Reposición</label>
+                    <label><input type="checkbox" name="inscripcion" value="X" {insc_check}> Inscripción</label>
+                    <label><input type="checkbox" name="multa" value="X" {multa_check}> Multa</label>
+                </div>
+                
                 <button type="submit">💾 Guardar Cambios</button>
             </form>
         </div>
