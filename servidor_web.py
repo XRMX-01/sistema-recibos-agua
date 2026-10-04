@@ -430,7 +430,6 @@ def pdf_cliente():
     pdf.cell(150, 8, limpiar_texto(f"{c[5] or ''} Mz {c[6] or ''} Lote {c[7] or ''}"), 1)
     pdf.ln(10)
     
-    # Tabla CONCEPTO
     pdf.set_font("helvetica", "B", 11)
     pdf.set_fill_color(0, 102, 204)
     pdf.set_text_color(255, 255, 255)
@@ -451,15 +450,42 @@ def pdf_cliente():
                 total += f[2] if f[2] else 0
     
     # Cuadro Reposición / Inscripción / Multa
-    marcado_repo = "X" if c[9] else ""
-    marcado_insc = "X" if c[10] else ""
-    marcado_multa = "X" if c[11] else ""
+    marcado_repo = c[9] if c[9] else ""
+    marcado_insc = c[10] if c[10] else ""
+    marcado_multa = c[11] if c[11] else ""
     
-    pdf.cell(50, 8, limpiar_texto(f"Reposición [{marcado_repo}]"), 1)
-    pdf.cell(50, 8, limpiar_texto(f"Inscripción [{marcado_insc}]"), 1)
-    pdf.cell(50, 8, limpiar_texto(f"Multa [{marcado_multa}]"), 1)
-    pdf.cell(30, 8, "", 1)
-    pdf.ln()
+    y_actual = pdf.get_y()
+    
+    # Reposición
+    pdf.set_xy(15, y_actual)
+    pdf.cell(30, 8, limpiar_texto("Reposicion"), 0)
+    x_cuadro = pdf.get_x() + 2
+    pdf.rect(x_cuadro, y_actual + 1, 6, 6)
+    if marcado_repo:
+        pdf.line(x_cuadro, y_actual + 1, x_cuadro + 6, y_actual + 7)
+        pdf.line(x_cuadro + 6, y_actual + 1, x_cuadro, y_actual + 7)
+    
+    # Inscripción
+    pdf.set_xy(75, y_actual)
+    pdf.cell(30, 8, limpiar_texto("Inscripcion"), 0)
+    x_cuadro = pdf.get_x() + 2
+    pdf.rect(x_cuadro, y_actual + 1, 6, 6)
+    if marcado_insc:
+        pdf.line(x_cuadro, y_actual + 1, x_cuadro + 6, y_actual + 7)
+        pdf.line(x_cuadro + 6, y_actual + 1, x_cuadro, y_actual + 7)
+    
+    # Multa
+    pdf.set_xy(135, y_actual)
+    pdf.cell(30, 8, limpiar_texto("Multa"), 0)
+    x_cuadro = pdf.get_x() + 2
+    pdf.rect(x_cuadro, y_actual + 1, 6, 6)
+    if marcado_multa:
+        pdf.line(x_cuadro, y_actual + 1, x_cuadro + 6, y_actual + 7)
+        pdf.line(x_cuadro + 6, y_actual + 1, x_cuadro, y_actual + 7)
+    
+    pdf.set_xy(15, y_actual + 10)
+    pdf.cell(180, 0, "", 1)
+    pdf.ln(12)
     
     pdf.cell(150, 8, limpiar_texto("Deuda atrasada"), 1)
     pdf.cell(30, 8, "", 1)
@@ -526,7 +552,6 @@ def generar_mes():
             h1 { color: #0066cc; margin-top: 0; }
             label { font-size: 13px; color: #555; font-weight: bold; }
             input, select { width: 100%; padding: 10px; margin: 5px 0 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-            input:focus, select:focus { border-color: #0066cc; outline: none; }
             button { background: linear-gradient(135deg, #ffc107, #d39e00); color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
             .volver { display: inline-block; margin-bottom: 15px; color: #0066cc; text-decoration: none; font-weight: bold; }
             .info { background-color: #d1ecf1; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; color: #0c5460; }
