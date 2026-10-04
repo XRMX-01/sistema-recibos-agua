@@ -8,6 +8,13 @@ from fpdf import FPDF
 app = Flask(__name__)
 app.secret_key = "clave_secreta_para_sesiones_123"
 
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
 def conectar():
     return psycopg2.connect(
         host=os.environ.get("DB_HOST"),
@@ -362,7 +369,7 @@ def pdf_admin():
     
     response = make_response(bytes(pdf.output(dest='S')))
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'inline; filename=lista_clientes.pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=lista_clientes.pdf'
     return response
 
 @app.route('/pdf_cliente')
@@ -373,7 +380,7 @@ def pdf_cliente():
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
-        SELECT c.id_cliente, c.nombre_completo, c.apellidos, c.dni, c.direccion, c.calle, c.mz, c.lote, c.celular, c.correo, c.categoria
+        SELECT c.id_cliente, c.nombre_completo, c.apellidos, c.dni, c.direccion, c.calle, c.mz, c.lote, c.celular
         FROM clientes c
         INNER JOIN usuarios u ON c.id_cliente = u.id_cliente
         WHERE u.nombre_usuario = %s
@@ -393,12 +400,10 @@ def pdf_cliente():
     cursor.close()
     conexion.close()
     
-    # Crear PDF con el diseño del recibo
     pdf = FPDF()
     pdf.add_page()
     pdf.set_margins(15, 10, 15)
     
-    # Encabezado
     pdf.set_font("helvetica", "B", 12)
     pdf.cell(0, 6, limpiar_texto("JUNTA ADMINISTRADORA DE SERVICIOS Y SANEAMIENTO"), ln=True, align="C")
     pdf.set_font("helvetica", "B", 16)
@@ -407,7 +412,6 @@ def pdf_cliente():
     pdf.cell(0, 5, limpiar_texto("Santa Maria Mza. 4 Lote 09 (frente Loza Deportiva) - Puente Viru - Viru"), ln=True, align="C")
     pdf.ln(3)
     
-    # Cuadro de Mes y Vencimiento
     pdf.set_font("helvetica", "B", 10)
     pdf.cell(60, 8, limpiar_texto("Mes:"), 1)
     if facturas:
@@ -430,7 +434,6 @@ def pdf_cliente():
     pdf.cell(60, 8, limpiar_texto(""), 1)
     pdf.ln(10)
     
-    # Datos del cliente
     pdf.set_font("helvetica", "B", 10)
     pdf.cell(30, 8, limpiar_texto("Usuario(a):"), 1)
     pdf.set_font("helvetica", size=10)
@@ -443,7 +446,6 @@ def pdf_cliente():
     pdf.cell(150, 8, limpiar_texto(f"{c[5] or ''} Mz {c[6] or ''} Lote {c[7] or ''}"), 1)
     pdf.ln(10)
     
-    # Tabla de Conceptos
     pdf.set_font("helvetica", "B", 11)
     pdf.set_fill_color(0, 102, 204)
     pdf.set_text_color(255, 255, 255)
@@ -480,7 +482,6 @@ def pdf_cliente():
     pdf.cell(30, 10, f"{total:.2f}", 1, 0, "R")
     pdf.ln(15)
     
-    # Pie de página
     pdf.set_font("helvetica", "I", 7)
     pdf.cell(0, 5, limpiar_texto("Vecino(a): pague a tiempo su recibo y evite el corte y el pago de reposicion de servicio."), ln=True)
     pdf.cell(0, 5, limpiar_texto("A LOS CLANDESTINOS: El Hurto del agua es un delito contra el patrimonio, penado por Ley."), ln=True)
@@ -488,7 +489,7 @@ def pdf_cliente():
     
     response = make_response(bytes(pdf.output(dest='S')))
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'inline; filename=mi_recibo.pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=recibo.pdf'
     return response
 
 @app.route('/generar_mes', methods=['GET', 'POST'])
@@ -735,24 +736,37 @@ def cliente():
         <meta name="theme-color" content="#0066cc">
         <style>
             * {{ box-sizing: border-box; }}
-            body {{ font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: #f0f2f5; margin: 0; }}
-            .contenedor {{ max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-            h1 {{ color: #0066cc; text-align: center; }}
+            body {{ font-family: 'Segoe UI', Arial, sans-serif; padding: 15px; background-color: #f0f2f5; margin: 0; }}
+            .contenedor {{ max-width: 100%; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+            h1 {{ color: #0066cc; text-align: center; font-size: 22px; }}
             h2 {{ color: #0066cc; font-size: 18px; margin-top: 25px; }}
-            .estado {{ padding: 15px; border-radius: 10px; text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0; background-color: {color}; }}
-            .dato {{ margin: 10px 0; font-size: 15px; }}
+            .estado {{ padding: 15px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: bold; margin: 20px 0; background-color: {color}; }}
+            .dato {{ margin: 8px 0; font-size: 14px; }}
             .dato strong {{ color: #0066cc; }}
             .logout {{ text-align: right; margin-bottom: 15px; }}
             .logout a {{ color: #dc3545; text-decoration: none; font-weight: bold; }}
-            .btn-pdf {{ display: block; background: linear-gradient(135deg, #6f42c1, #4b2a89); color: white; padding: 15px; text-align: center; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 10px rgba(111,66,193,0.3); }}
-            table {{ width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }}
-            th, td {{ padding: 10px; text-align: left; border-bottom: 1px solid #eee; }}
-            th {{ background-color: #0066cc; color: white; }}
-            .verde {{ background-color: #d4edda; color: #155724; font-weight: bold; text-align: center; }}
-            .amarillo {{ background-color: #fff3cd; color: #856404; font-weight: bold; text-align: center; }}
-            .rojo {{ background-color: #f8d7da; color: #721c24; font-weight: bold; text-align: center; }}
-            .azul {{ background-color: #d1ecf1; color: #0c5460; font-weight: bold; text-align: center; }}
-            .total {{ background-color: #f8d7da; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center; font-size: 18px; font-weight: bold; color: #721c24; }}
+            .btn-pdf {{ display: block; background: linear-gradient(135deg, #6f42c1, #4b2a89); color: white; padding: 15px; text-align: center; text-decoration: none; border-radius: 8px; font-size: 15px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 10px rgba(111,66,193,0.3); }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; table-layout: fixed; }}
+            th, td {{ padding: 6px; text-align: center; border-bottom: 1px solid #eee; word-wrap: break-word; }}
+            th {{ background-color: #0066cc; color: white; font-size: 11px; }}
+            .verde {{ background-color: #d4edda; color: #155724; font-weight: bold; }}
+            .amarillo {{ background-color: #fff3cd; color: #856404; font-weight: bold; }}
+            .rojo {{ background-color: #f8d7da; color: #721c24; font-weight: bold; }}
+            .azul {{ background-color: #d1ecf1; color: #0c5460; font-weight: bold; }}
+            .total {{ background-color: #f8d7da; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center; font-size: 16px; font-weight: bold; color: #721c24; }}
+            
+            @media (max-width: 600px) {{
+                table, thead, tbody, th, td, tr {{ display: block; }}
+                thead tr {{ position: absolute; top: -9999px; left: -9999px; }}
+                tr {{ border: 1px solid #ccc; margin-bottom: 10px; border-radius: 8px; padding: 5px; }}
+                td {{ border: none; position: relative; padding-left: 50%; text-align: right; font-size: 13px; }}
+                td:before {{ position: absolute; left: 6px; width: 45%; padding-right: 10px; white-space: nowrap; text-align: left; font-weight: bold; color: #0066cc; }}
+                td:nth-of-type(1):before {{ content: "Mes:"; }}
+                td:nth-of-type(2):before {{ content: "Monto:"; }}
+                td:nth-of-type(3):before {{ content: "Fecha Pago:"; }}
+                td:nth-of-type(4):before {{ content: "Fecha Corte:"; }}
+                td:nth-of-type(5):before {{ content: "Estado:"; }}
+            }}
         </style>
     </head>
     <body>
@@ -769,15 +783,15 @@ def cliente():
             <div class="dato"><strong>Lote:</strong> {c[9] or ''}</div>
             <div class="dato"><strong>Celular:</strong> {c[6] or ''}</div>
             
-            <a href="/pdf_cliente" class="btn-pdf" target="_blank">📄 Descargar mi Recibo en PDF</a>
+            <a href="/pdf_cliente" class="btn-pdf">📄 Descargar mi Recibo en PDF</a>
             
             <h2>📋 Historial de Meses</h2>
             <table>
                 <tr>
                     <th>Mes</th>
                     <th>Monto</th>
-                    <th>Fecha de Pago</th>
-                    <th>Fecha de Corte</th>
+                    <th>Fecha Pago</th>
+                    <th>Fecha Corte</th>
                     <th>Estado</th>
                 </tr>
                 {historial}
